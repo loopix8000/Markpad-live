@@ -159,6 +159,7 @@ const en = {
         zenMode: 'Zen Mode',
         theme: 'Theme',
         importVSCodeTheme: 'Import VS Code Theme',
+        importThemeFailed: 'Could not import the theme. Check the URL and try again.',
         import: 'Import',
         importing: 'Importing...',
         browseThemes: 'Browse themes',
@@ -376,6 +377,8 @@ const en = {
     },
     modal: {
         unsavedChanges: 'Unsaved Changes',
+        overwriteFile: 'Overwrite file',
+        renameFailed: 'Could not rename the file',
         youHaveUnsavedChanges: 'You have unsaved changes in "{title}". Do you want to save them before closing?',
         openExportedFileTitle: 'Open exported file?',
         openExportedHtmlMessage: 'HTML export was saved. Open it now?',

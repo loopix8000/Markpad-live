@@ -160,11 +160,11 @@ describe('the update dialog', () => {
 		assert.equal(target.querySelector('#update-title')?.textContent?.trim(), tk('packageManagedHeader'));
 		assert.equal(target.querySelector('#update-body')?.textContent?.trim(), tk('packageManagedBody'));
 		const buttons = [...target.querySelectorAll<HTMLButtonElement>('.update-footer button')];
-		assert.deepEqual(buttons.map((b) => b.textContent?.trim()), [tk('ok')]);
+		assert.deepEqual(buttons.map((b) => b.textContent?.trim()), [tk('close')]);
 
 		buttons[0].click();
 		flushSync();
-		assert.equal(updateStore.show, false, 'OK dismisses the dialog');
+		assert.equal(updateStore.show, false);
 	});
 
 	test('the dialog promises reopened tabs only when restore is on', () => {

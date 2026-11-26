@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: 'Tema içe aktarılamadı. URL’yi kontrol edip tekrar deneyin.',
         title: 'Ayarlar',
         editor: 'Editör',
         preview: 'Önizleme',
@@ -304,6 +305,8 @@ export default {
         close: 'Kapat'
     },
     modal: {
+        overwriteFile: 'Dosyanın üzerine yaz',
+        renameFailed: 'Dosya yeniden adlandırılamadı',
         unsavedChanges: 'Kaydedilmemiş Değişiklikler',
         youHaveUnsavedChanges: '"{title}" içinde kaydedilmemiş değişiklikleriniz var. Kapatmadan önce kaydetmek istiyor musunuz?',
         openExportedFileTitle: 'Dışa aktarılan dosya açılsın mı?',

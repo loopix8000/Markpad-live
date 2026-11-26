@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: 'Det gick inte att importera temat. Kontrollera webbadressen och försök igen.',
         title: 'Inställningar',
         editor: 'Redigerare',
         preview: 'Förhandsgranskning',
@@ -304,6 +305,8 @@ export default {
         close: 'Stäng'
     },
     modal: {
+        overwriteFile: 'Skriv över fil',
+        renameFailed: 'Det gick inte att byta namn på filen',
         unsavedChanges: 'Osparade ändringar',
         youHaveUnsavedChanges: 'Du har osparade ändringar i "{title}". Vill du spara dem innan du stänger?',
         openExportedFileTitle: 'Öppna exporterad fil?',

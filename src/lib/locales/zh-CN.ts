@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: '无法导入主题。请检查 URL 后重试。',
         title: '设置',
         editor: '编辑器',
         preview: '预览',
@@ -307,6 +308,8 @@ export default {
         close: '关闭'
     },
     modal: {
+        overwriteFile: '覆盖文件',
+        renameFailed: '无法重命名文件',
         unsavedChanges: '未保存的更改',
         youHaveUnsavedChanges: '"{title}"中有未保存的更改。关闭前要保存吗？',
         openExportedFileTitle: '打开导出的文件？',

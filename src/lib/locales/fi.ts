@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: 'Teeman tuonti epäonnistui. Tarkista URL-osoite ja yritä uudelleen.',
         title: 'Asetukset',
         editor: 'Editori',
         preview: 'Esikatselu',
@@ -304,6 +305,8 @@ export default {
         close: 'Sulje'
     },
     modal: {
+        overwriteFile: 'Korvaa tiedosto',
+        renameFailed: 'Tiedoston nimeäminen uudelleen epäonnistui',
         unsavedChanges: 'Tallentamattomia muutoksia',
         youHaveUnsavedChanges: 'Tiedostossa "{title}" on tallentamattomia muutoksia. Haluatko tallentaa ne ennen sulkemista?',
         openExportedFileTitle: 'Avataanko viety tiedosto?',

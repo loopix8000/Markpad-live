@@ -11,9 +11,11 @@
 		message,
 		kind = 'info',
 		showSave = false,
+		saveLabel,
 		showInput = false,
 		inputValue = $bindable(''),
 		confirmLabel,
+		confirmDisabled = false,
 		children,
 		onkeydown,
 		onconfirm,
@@ -25,15 +27,11 @@
 		message: string;
 		kind?: 'info' | 'warning' | 'error';
 		showSave?: boolean;
+		saveLabel?: string;
 		showInput?: boolean;
 		inputValue?: string;
-		/**
-		 * Names the confirm button after what the dialog is for ("Open"),
-		 * instead of the Save/Discard pair the unsaved-changes prompt uses. A
-		 * named action is the one the dialog exists to offer, so it is also
-		 * the primary button, which is the one focused on open.
-		 */
-		confirmLabel?: string;
+		confirmLabel: string;
+		confirmDisabled?: boolean;
 		/** Content under the message, such as the window list of the open-file picker. */
 		children?: Snippet;
 		/**
@@ -54,25 +52,28 @@
 	$effect(() => {
 		if (show) {
 			previousActiveElement = document.activeElement as HTMLElement;
-			setTimeout(() => {
+			const focusTimer = setTimeout(() => {
 				if (showInput && inputElement) {
 					inputElement.focus();
 					inputElement.select();
 					return;
 				}
-				const focusable = modalContent?.querySelector('button.primary') as HTMLElement;
+				const focusable = modalContent?.querySelector<HTMLButtonElement>('button.primary:not(:disabled)');
 				if (focusable) {
 					focusable.focus();
 				} else {
 					modalContent?.focus();
 				}
 			}, 50);
+			return () => clearTimeout(focusTimer);
 		} else if (previousActiveElement) {
 			previousActiveElement.focus();
+			previousActiveElement = null;
 		}
 	});
 
 	function handleKeydown(e: KeyboardEvent) {
+		if (e.isComposing || e.keyCode === 229) return;
 		onkeydown?.(e);
 		if (e.defaultPrevented) return;
 		// While the user is typing in the input, plain letters are text —
@@ -83,14 +84,15 @@
 			oncancel();
 		}
 		if (e.key === 'Enter') {
+			if (e.target instanceof HTMLButtonElement && e.target.closest('.modal-footer')) return;
 			e.preventDefault();
 			if (showSave && onsave) {
 				onsave();
-			} else {
+			} else if (!confirmDisabled) {
 				onconfirm();
 			}
 		}
-		if (!typingInInput && e.key.toLowerCase() === 'y' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+		if (!typingInInput && !showSave && !confirmDisabled && e.key.toLowerCase() === 'y' && !e.ctrlKey && !e.altKey && !e.metaKey) {
 			e.preventDefault();
 			onconfirm();
 		}
@@ -105,7 +107,7 @@
 
 		// Focus trap
 		if (e.key === 'Tab') {
-			const focusableElements = modalContent?.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])') || [];
+			const focusableElements = modalContent?.querySelectorAll('button:not(:disabled), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])') || [];
 			if (focusableElements.length === 0) return;
 			const first = focusableElements[0] as HTMLElement;
 			const last = focusableElements[focusableElements.length - 1] as HTMLElement;
@@ -142,6 +144,7 @@
 			transition:scale={{ duration: 200, start: 0.95 }}
 			onclick={(e) => e.stopPropagation()}
 			role="dialog"
+			aria-label={title}
 			aria-modal="true"
 			tabindex="-1"
 			onkeydown={handleKeydown}>
@@ -149,24 +152,23 @@
 				<h3>{title}</h3>
 			</div>
 			<div class="modal-body">
-				<p>{message}</p>
+				{#if message}<p>{message}</p>{/if}
 				{#if showInput}
-					<input class="modal-input" type="text" bind:this={inputElement} bind:value={inputValue} spellcheck="false" />
+					<input class="modal-input" type="text" aria-label={message || title} bind:this={inputElement} bind:value={inputValue} spellcheck="false" />
 				{/if}
 				{@render children?.()}
 			</div>
 			<div class="modal-footer">
-					<button class="modal-btn secondary" onclick={oncancel}>{t('settings.cancel', settings.language)}</button>
-					<div class="footer-spacer"></div>
-					{#if confirmLabel}
-						<button class="modal-btn primary" onclick={onconfirm}>{confirmLabel}</button>
-					{:else}
-						<button class="modal-btn secondary" onclick={onconfirm}>
-							{kind === 'warning' ? t('settings.discard', settings.language) : t('settings.save', settings.language)}
-						</button>
+				{#if showSave}
+					<button type="button" class="dialog-action discard" disabled={confirmDisabled} onclick={onconfirm}>{confirmLabel}</button>
 					{/if}
+				{#if kind !== 'error'}
+					<button type="button" class="dialog-action" onclick={oncancel}>{t('settings.cancel', settings.language)}</button>
+				{/if}
 					{#if showSave}
-						<button class="modal-btn primary" onclick={onsave}>{t('settings.save', settings.language)}</button>
+					<button type="button" class="dialog-action primary" onclick={onsave}>{saveLabel ?? t('settings.save', settings.language)}</button>
+				{:else}
+					<button type="button" class="dialog-action primary" disabled={confirmDisabled} onclick={onconfirm}>{confirmLabel}</button>
 					{/if}
 				</div>
 		</div>
@@ -242,47 +244,16 @@
 		padding: 16px 24px;
 		background: var(--color-canvas-subtle);
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
 		justify-content: flex-end;
 		gap: 8px;
 		border-top: 1px solid var(--color-border-muted);
 	}
 
-	.footer-spacer {
-		flex: 1;
-	}
-
-	.modal-btn {
-		padding: 6px 16px;
-		border-radius: 6px;
-		font-size: 14px;
-		font-weight: 500;
-		cursor: pointer;
-		transition: all 0.1s;
-		border: 1px solid transparent;
-		font-family: inherit;
-	}
-
-	.modal-btn.secondary {
-		background: transparent;
-		color: var(--color-fg-default);
-		border-color: var(--color-border-default);
-	}
-
-	.modal-btn.secondary:hover {
-		background: var(--color-neutral-muted);
-	}
-
-	.modal-btn.primary {
-		background: var(--color-accent-fg);
-		color: var(--color-btn-fg);
-	}
-
-	.modal-btn.primary.warning {
-		background: #d73a49;
-	}
-
-	.modal-btn.primary:hover {
-		filter: brightness(1.1);
+	.discard {
+		margin-inline-end: auto;
+		color: var(--color-action-danger-fg);
+		border-color: currentColor;
 	}
 </style>

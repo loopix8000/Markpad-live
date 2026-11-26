@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: 'Không thể nhập giao diện. Hãy kiểm tra URL và thử lại.',
         title: 'Cài đặt',
         editor: 'Trình chỉnh sửa',
         preview: 'Xem trước',
@@ -304,6 +305,8 @@ export default {
         close: 'Đóng'
     },
     modal: {
+        overwriteFile: 'Ghi đè tệp',
+        renameFailed: 'Không thể đổi tên tệp',
         unsavedChanges: 'Thay đổi chưa lưu',
         youHaveUnsavedChanges: 'Bạn có thay đổi chưa lưu trong "{title}". Bạn có muốn lưu trước khi đóng không?',
         openExportedFileTitle: 'Mở tệp đã xuất?',

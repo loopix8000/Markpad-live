@@ -127,7 +127,7 @@
 
 	.diff-action {
 		padding: 4px 10px;
-		border: 1px solid var(--color-border-default);
+		border: 1px solid var(--color-action-border);
 		border-radius: 6px;
 		background: var(--color-canvas-subtle);
 		color: var(--color-fg-default);
@@ -136,9 +136,9 @@
 	}
 
 	.diff-action.primary {
-		background: var(--color-accent-fg, #0969da);
-		border-color: var(--color-accent-fg, #0969da);
-		color: #fff;
+		background: var(--color-primary-action-bg);
+		border-color: var(--color-accent-emphasis);
+		color: var(--color-primary-action-fg);
 	}
 
 	.diff-body {

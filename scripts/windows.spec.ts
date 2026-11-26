@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
 import { flushSync, mount, unmount } from 'svelte';
-import { afterAll, beforeAll, describe, onTestFinished, test, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, onTestFinished, test, vi } from 'vitest';
 import type { TranslationKey } from '../src/lib/utils/i18n.js';
 import type { OpenFilePickerDeps } from '../src/lib/sessions/openFilePicker.svelte.js';
 import type { OpenFileTarget } from '../src/lib/utils/openFileTarget.js';
@@ -1402,6 +1402,8 @@ describe('the maximize button follows the window state', () => {
 // fake that records what it was asked to do, which is the whole of what the
 // picker decides: load here, hand to another window, or nothing at all.
 describe('a file opened from outside asks which window it goes to', () => {
+	beforeEach(() => { vi.useFakeTimers(); });
+	afterEach(() => { vi.useRealTimers(); });
 	const BATCH_MS = 5;
 
 	function entry(label: string, number: number, tag: string | null = null): ViewerWindowEntry {
@@ -1412,7 +1414,7 @@ describe('a file opened from outside asks which window it goes to', () => {
 	const OTHER = entry('window-2', 2, 'Personal');
 
 	function wait(ms = BATCH_MS * 4) {
-		return new Promise((resolve) => setTimeout(resolve, ms));
+		return vi.advanceTimersByTimeAsync(ms);
 	}
 
 	function setup(options: {
@@ -1432,7 +1434,8 @@ describe('a file opened from outside asks which window it goes to', () => {
 			isOpenHere: (path) => (options.openHere ?? []).includes(path),
 			listWindows: async () => windows,
 			openHere: async (paths) => {
-				await wait(options.openDelay?.(paths) ?? 0);
+				const delay = options.openDelay?.(paths);
+				if (delay) await new Promise(resolve => setTimeout(resolve, delay));
 				opened.push(paths);
 			},
 			sendTo: async (label, paths) => {

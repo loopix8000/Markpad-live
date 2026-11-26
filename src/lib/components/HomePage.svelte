@@ -32,6 +32,12 @@
 		return basename(path) || path;
 	}
 
+	function activateCard(event: KeyboardEvent, action: () => void) {
+		if (event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) return;
+		event.preventDefault();
+		action();
+	}
+
 	let fileMenu = $state<{ x: number; y: number; items: ContextMenuItem[] } | null>(null);
 
 	function showTagFiles(event: MouseEvent, files: string[]) {
@@ -82,10 +88,10 @@
 			<h3>{t('home.pinnedTags', settings.language)}</h3>
 			<div class="recent-grid">
 				{#each pinnedTags as tag (tag.name)}
-					<div class="recent-card" onclick={() => onopenPinnedTag?.(tag)} oncontextmenu={(event) => showTagFiles(event, tag.files)} onkeydown={(event) => (event.key === 'Enter' || event.key === ' ') && onopenPinnedTag?.(tag)} role="button" tabindex="0">
+					<div class="recent-card" onclick={() => onopenPinnedTag?.(tag)} oncontextmenu={(event) => showTagFiles(event, tag.files)} onkeydown={(event) => activateCard(event, () => onopenPinnedTag?.(tag))} role="button" tabindex="0">
 						<div class="file-icon"><span class="tag-dot" style:--tag-color={tag.color}></span></div>
 						<div class="file-info"><span class="file-name">{tag.name}</span><span class="file-path file-count">{t('home.pinnedFileCount', settings.language).replace('{{count}}', String(tag.files.length))}</span></div>
-						<button class="clear-btn" onclick={(event) => { event.stopPropagation(); onunpinTag?.(tag.name); }}>×</button>
+						<button class="clear-btn" aria-label={t('menu.unpinWindowTag', settings.language)} onclick={(event) => { event.stopPropagation(); onunpinTag?.(tag.name); }}>×</button>
 					</div>
 				{/each}
 			</div>
@@ -103,11 +109,7 @@
 						onclick={() => onloadFile(file)}
 						role="button"
 						tabindex="0"
-						onkeydown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								onloadFile(file);
-							}
-						}}>
+						onkeydown={(event) => activateCard(event, () => onloadFile(file))}>
 						<div class="file-icon">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -183,9 +185,15 @@
 	}
 
 	.fluent-btn.primary {
-		background: var(--color-accent-fg);
-		color: var(--color-btn-fg);
-		border: 1px solid rgba(0, 0, 0, 0.1);
+		background: var(--color-primary-action-bg);
+		color: var(--color-primary-action-fg);
+		border-color: var(--color-accent-emphasis);
+		font-weight: 600;
+	}
+
+	.fluent-btn.primary:focus-visible {
+		outline: 2px solid var(--color-fg-default);
+		outline-offset: 3px;
 	}
 
 	.fluent-btn.secondary {
@@ -263,7 +271,6 @@
 		transition: all 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
 		text-align: left;
 		color: var(--color-fg-default);
-		outline: none;
 		width: 220px;
 		box-sizing: border-box;
 	}
@@ -333,11 +340,14 @@
 	}
 
 	.recent-card:hover .clear-btn {
-		opacity: 0.4;
+		opacity: 1;
+	}
+
+	.clear-btn:focus-visible {
+		opacity: 1;
 	}
 
 	.clear-btn:hover {
-		opacity: 1 !important;
 		background: rgba(255, 0, 0, 0.1);
 	}
 

@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: '테마를 가져오지 못했습니다. URL을 확인한 뒤 다시 시도하세요.',
         title: '설정',
         editor: '편집기',
         preview: '미리보기',
@@ -93,7 +94,7 @@ export default {
         default: '기본',
         cancel: '취소',
         save: '저장',
-        discard: '취소',
+        discard: '저장하지 않고 닫기',
         themeDefaultLight: '기본 밝게',
         themeDefaultDark: '기본 어둡게',
         themeFollowSystem: '시스템 따르기',
@@ -304,11 +305,13 @@ export default {
         close: '닫기'
     },
     modal: {
+        overwriteFile: '파일 덮어쓰기',
+        renameFailed: '파일 이름을 바꾸지 못했습니다',
         unsavedChanges: '저장되지 않은 변경 사항',
-        youHaveUnsavedChanges: '"{title}"에 저장되지 않은 변경 사항이 있습니다. 닫기 전에 저장하시겠습니까?',
+        youHaveUnsavedChanges: '“{title}”을 닫기 전에 변경 사항을 저장하시겠습니까?',
         openExportedFileTitle: '내보낸 파일을 여시겠습니까?',
-        openExportedHtmlMessage: 'HTML 내보내기가 저장되었습니다. 지금 여시겠습니까?',
-        openExportedPdfMessage: 'PDF 내보내기가 저장되었습니다. 지금 여시겠습니까?',
+        openExportedHtmlMessage: '내보낸 HTML 파일을 지금 여시겠습니까?',
+        openExportedPdfMessage: '내보낸 PDF 파일을 지금 여시겠습니까?',
         openFileInTitle: '파일을 열 창…',
         openFilesInTitle: '파일 {{count}}개를 열 창…',
         openFileInButton: '열기',

@@ -300,6 +300,10 @@ export async function parseAndApplyVscodeTheme(themeJsonStr: string, name: strin
 	cssVars['--color-accent-emphasis'] = colors['textLink.activeForeground'] || colors['button.hoverBackground'] || cssVars['--color-accent-fg'];
 
 	cssVars['--color-btn-fg'] = colors['button.foreground'] || (isDark ? '#ffffff' : '#000000');
+	if (colors['button.background'] && colors['button.foreground']) {
+		cssVars['--color-primary-action-bg'] = colors['button.background'];
+		cssVars['--color-primary-action-fg'] = colors['button.foreground'];
+	}
 	cssVars['--color-btn-hover-bg'] = colors['button.hoverBackground'] || cssVars['--color-accent-emphasis'];
 	cssVars['--color-tab-active-fg'] = colors['tab.activeForeground'] || cssVars['--color-btn-fg'];
 

@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: 'Tema nu a putut fi importată. Verifică adresa URL și încearcă din nou.',
         title: 'Setări',
         editor: 'Editor',
         preview: 'Previzualizare',
@@ -304,6 +305,8 @@ export default {
         close: 'Închidere'
     },
     modal: {
+        overwriteFile: 'Suprascrie fișierul',
+        renameFailed: 'Fișierul nu a putut fi redenumit',
         unsavedChanges: 'Modificări nesalvate',
         youHaveUnsavedChanges: 'Aveți modificări nesalvate în "{title}". Doriți să le salvați înainte de închidere?',
         openExportedFileTitle: 'Deschideți fișierul exportat?',

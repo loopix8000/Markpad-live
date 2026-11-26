@@ -244,19 +244,19 @@
 			<div class="update-footer">
 				{#if updateStore.phase === 'checking' || updateStore.phase === 'downloading'}
 					<button
-						class="btn secondary"
+						class="dialog-action"
 						onclick={close}
 						disabled={updateStore.phase === 'downloading'}>
 						{tk('cancel')}
 					</button>
 				{:else if updateStore.phase === 'up-to-date' || updateStore.phase === 'package-managed'}
-					<button class="btn primary" onclick={close}>{tk('ok')}</button>
+					<button class="dialog-action primary" onclick={close}>{tk('close')}</button>
 				{:else if updateStore.phase === 'available'}
-					<button class="btn secondary" onclick={close}>{tk('cancel')}</button>
-					<button class="btn primary" onclick={startDownload}>{tk('downloadInstall')}</button>
+					<button class="dialog-action" onclick={close}>{tk('cancel')}</button>
+					<button class="dialog-action primary" onclick={startDownload}>{tk('downloadInstall')}</button>
 				{:else if updateStore.phase === 'error'}
-					<button class="btn secondary" onclick={close}>{tk('close')}</button>
-					<button class="btn primary" onclick={retry}>{tk('retry')}</button>
+					<button class="dialog-action" onclick={close}>{tk('close')}</button>
+					<button class="dialog-action primary" onclick={retry}>{tk('retry')}</button>
 				{/if}
 			</div>
 		</div>
@@ -425,42 +425,11 @@
 		padding: 16px 24px;
 		background: var(--color-canvas-subtle);
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
 		justify-content: flex-end;
 		gap: 8px;
 		border-top: 1px solid var(--color-border-muted);
 	}
 
-	.btn {
-		padding: 6px 16px;
-		border-radius: 6px;
-		font-size: 14px;
-		font-weight: 500;
-		cursor: pointer;
-		transition: all 0.1s;
-		border: 1px solid transparent;
-		font-family: inherit;
-	}
-
-	.btn.secondary {
-		background: transparent;
-		color: var(--color-fg-default);
-		border-color: var(--color-border-default);
-	}
-	.btn.secondary:hover:not(:disabled) {
-		background: var(--color-neutral-muted);
-	}
-
-	.btn.primary {
-		background: var(--color-accent-fg);
-		color: var(--color-btn-fg);
-	}
-	.btn.primary:hover:not(:disabled) {
-		filter: brightness(1.1);
-	}
-
-	.btn:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
 </style>

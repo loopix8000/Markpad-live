@@ -7,9 +7,10 @@ export class ChoiceDialog {
 	message = $state('');
 	kind = $state<'info' | 'warning' | 'error'>('info');
 	showSave = $state(false);
+	saveLabel = $state<string>();
 	resolve: ((v: DialogChoice) => void) | null = null;
 
-	ask(message: string, options: { title: string; kind: 'info' | 'warning' | 'error'; showSave?: boolean }): Promise<DialogChoice> {
+	ask(message: string, options: { title: string; kind: 'info' | 'warning' | 'error'; showSave?: boolean; saveLabel?: string }): Promise<DialogChoice> {
 		// A second question replaces the first dialog, so the first caller is
 		// answered 'cancel' rather than left awaiting a resolver that is about to
 		// be overwritten — a close walk left that way never finished, and the
@@ -21,6 +22,7 @@ export class ChoiceDialog {
 			this.message = message;
 			this.kind = options.kind;
 			this.showSave = options.showSave ?? false;
+			this.saveLabel = options.saveLabel;
 			this.resolve = resolve;
 		});
 	}

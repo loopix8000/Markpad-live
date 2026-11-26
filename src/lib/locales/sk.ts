@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: 'Motív sa nepodarilo importovať. Skontrolujte adresu URL a skúste to znova.',
         title: 'Nastavenia',
         editor: 'Editor',
         preview: 'Náhľad',
@@ -304,6 +305,8 @@ export default {
         close: 'Zatvoriť'
     },
     modal: {
+        overwriteFile: 'Prepísať súbor',
+        renameFailed: 'Súbor sa nepodarilo premenovať',
         unsavedChanges: 'Neuložené zmeny',
         youHaveUnsavedChanges: 'Máte neuložené zmeny v "{title}". Chcete ich uložiť pred zatvorením?',
         openExportedFileTitle: 'Otvoriť exportovaný súbor?',

@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: 'Δεν ήταν δυνατή η εισαγωγή του θέματος. Ελέγξτε τη διεύθυνση URL και δοκιμάστε ξανά.',
         title: 'Ρυθμίσεις',
         editor: 'Επεξεργαστής',
         preview: 'Προεπισκόπηση',
@@ -304,6 +305,8 @@ export default {
         close: 'Κλείσιμο'
     },
     modal: {
+        overwriteFile: 'Αντικατάσταση αρχείου',
+        renameFailed: 'Δεν ήταν δυνατή η μετονομασία του αρχείου',
         unsavedChanges: 'Μη αποθηκευμένες αλλαγές',
         youHaveUnsavedChanges: 'Έχετε μη αποθηκευμένες αλλαγές στο "{title}". Θέλετε να τις αποθηκεύσετε πριν το κλείσιμο;',
         openExportedFileTitle: 'Άνοιγμα του αρχείου εξαγωγής;',

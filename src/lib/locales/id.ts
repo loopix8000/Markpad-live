@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: 'Tema tidak dapat diimpor. Periksa URL dan coba lagi.',
         title: 'Pengaturan',
         editor: 'Editor',
         preview: 'Pratinjau',
@@ -304,6 +305,8 @@ export default {
         close: 'Tutup'
     },
     modal: {
+        overwriteFile: 'Timpa berkas',
+        renameFailed: 'Tidak dapat mengganti nama berkas',
         unsavedChanges: 'Perubahan Belum Disimpan',
         youHaveUnsavedChanges: 'Anda memiliki perubahan yang belum disimpan di "{title}". Apakah Anda ingin menyimpannya sebelum menutup?',
         openExportedFileTitle: 'Buka berkas hasil ekspor?',

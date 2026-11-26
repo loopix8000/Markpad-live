@@ -501,8 +501,8 @@
 			await loadVscodeThemes();
 			onSetTheme?.(`vscode:${name}`);
 		} catch (e) {
-			console.error('Failed to import theme:', e);
-			alert(`Failed to import theme: ${e}`);
+			console.error('테마를 가져오지 못했습니다.', e);
+			alert(`${t('settings.importThemeFailed', settings.language)}\n${e}`);
 		} finally {
 			importingTheme = false;
 		}
@@ -1477,8 +1477,9 @@
 	}
 
 	.nav-item.active {
-		background: var(--color-accent-fg);
-		color: var(--color-btn-fg);
+		background: var(--color-primary-action-bg);
+		color: var(--color-primary-action-fg);
+		box-shadow: inset 0 0 0 1px var(--color-accent-emphasis);
 	}
 
 	.nav-footer {
@@ -2000,8 +2001,9 @@
 	}
 
 	.toolbar-placement-controls button.active {
-		background: var(--color-accent-fg);
-		color: var(--color-btn-fg);
+		background: var(--color-primary-action-bg);
+		color: var(--color-primary-action-fg);
+		box-shadow: inset 0 0 0 1px var(--color-accent-emphasis);
 	}
 
 	.toolbar-placement-controls button:not(.active):hover {

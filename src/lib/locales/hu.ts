@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: 'A téma importálása nem sikerült. Ellenőrizze az URL-t, és próbálja újra.',
         title: 'Beállítások',
         editor: 'Szerkesztő',
         preview: 'Előnézet',
@@ -304,6 +305,8 @@ export default {
         close: 'Bezárás'
     },
     modal: {
+        overwriteFile: 'Fájl felülírása',
+        renameFailed: 'A fájl átnevezése nem sikerült',
         unsavedChanges: 'Nem mentett módosítások',
         youHaveUnsavedChanges: 'Nem mentett módosításai vannak a(z) "{title}" fájlban. Menteni szeretné bezárás előtt?',
         openExportedFileTitle: 'Megnyitja az exportált fájlt?',

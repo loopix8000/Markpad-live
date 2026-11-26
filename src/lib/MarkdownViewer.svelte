@@ -470,8 +470,16 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		items: [],
 	});
 
-	function askCustom(message: string, options: { title: string; kind: 'info' | 'warning' | 'error'; showSave?: boolean }): Promise<'save' | 'discard' | 'cancel'> {
+	function askCustom(message: string, options: Parameters<ChoiceDialog['ask']>[1]): Promise<'save' | 'discard' | 'cancel'> {
 		return modalState.ask(message, options);
+	}
+
+	function askToOpenExport(message: string, options?: { title: string; kind: 'info' }): Promise<boolean> {
+		return ask(message, {
+			...options,
+			okLabel: t('modal.openFileInButton', settings.language),
+			cancelLabel: t('settings.cancel', settings.language),
+		});
 	}
 
 	// window.prompt() is a silent no-op inside the webview (wry does not
@@ -745,6 +753,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 					title: t('modal.unsavedChanges', settings.language),
 					kind: 'warning',
 					showSave: true,
+					saveLabel: diskMoved ? t('modal.overwriteFile', settings.language) : undefined,
 				},
 			),
 		onCloseSaveNewerEdits: () => addToast(t('toast.savedNewerEdits', settings.language), 'info'),
@@ -1798,7 +1807,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		}
 		if (result?.path) {
 			const openResult = await askToOpenExportedFile(result.path, 'HTML', {
-				ask,
+				ask: askToOpenExport,
 				openPath,
 				labels: {
 					title: t('modal.openExportedFileTitle', settings.language),
@@ -1854,7 +1863,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		}
 		if (!path) return;
 		const openResult = await askToOpenExportedFile(path, 'PDF', {
-			ask,
+			ask: askToOpenExport,
 			openPath,
 			labels: {
 				title: t('modal.openExportedFileTitle', settings.language),
@@ -2587,8 +2596,8 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 							await documentSession.renameFile(tabId, newPath);
 							recentFileList.rename(oldPath, newPath);
 						} catch (e) {
-							console.error('Failed to rename file', e);
-							await askCustom(`Failed to rename file: ${e}`, { title: 'Error', kind: 'error' });
+							console.error('파일 이름을 바꾸지 못했습니다.', e);
+							await askCustom(String(e), { title: t('modal.renameFailed', settings.language), kind: 'error' });
 						}
 					}
 				}],
@@ -3236,6 +3245,8 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		message={modalState.message}
 		kind={modalState.kind}
 		showSave={modalState.showSave}
+	saveLabel={modalState.saveLabel}
+	confirmLabel={t(modalState.showSave ? 'settings.discard' : 'common.close', settings.language)}
 		onconfirm={handleModalConfirm}
 		onsave={() => closeModal('save')}
 		oncancel={() => closeModal('cancel')} />
@@ -3247,6 +3258,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		kind="info"
 		showInput={true}
 		bind:inputValue={promptModal.value}
+	confirmLabel={t('menu.rename', settings.language)}
 		onconfirm={() => closePrompt(promptModal.value)}
 		oncancel={() => closePrompt(null)} />
 
@@ -3894,7 +3906,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	.external-change-action {
 		flex: none;
 		padding: 4px 10px;
-		border: 1px solid var(--color-border-default);
+		border: 1px solid var(--color-action-border);
 		border-radius: 6px;
 		background: var(--color-canvas-default);
 		color: var(--color-fg-default);
@@ -3906,7 +3918,13 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		background: color-mix(in srgb, var(--color-accent-fg) 8%, var(--color-canvas-default));
 	}
 	.external-change-action.primary {
-		border-color: color-mix(in srgb, var(--color-accent-fg) 40%, transparent);
+		background: var(--color-primary-action-bg);
+		color: var(--color-primary-action-fg);
+		border-color: var(--color-accent-emphasis);
+	}
+
+	.external-change-action.primary:hover {
+		background: color-mix(in srgb, var(--color-primary-action-bg) 90%, black);
 	}
 	.toast-container {
 		position: fixed;

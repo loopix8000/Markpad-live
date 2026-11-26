@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: '無法匯入佈景主題。請檢查網址後再試一次。',
         title: '設定',
         editor: '編輯器',
         preview: '預覽',
@@ -304,6 +305,8 @@ export default {
         close: '關閉'
     },
     modal: {
+        overwriteFile: '覆寫檔案',
+        renameFailed: '無法重新命名檔案',
         unsavedChanges: '有未儲存的變更',
         youHaveUnsavedChanges: '「{title}」有未儲存的變更，關閉前要儲存嗎？',
         openExportedFileTitle: '開啟匯出的檔案？',

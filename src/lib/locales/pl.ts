@@ -2,6 +2,7 @@ import type { LocaleTable } from '../utils/i18n.js';
 
 export default {
     settings: {
+        importThemeFailed: 'Nie udało się zaimportować motywu. Sprawdź adres URL i spróbuj ponownie.',
         title: 'Ustawienia',
         editor: 'Edytor',
         preview: 'Podgląd',
@@ -304,6 +305,8 @@ export default {
         close: 'Zamknij'
     },
     modal: {
+        overwriteFile: 'Nadpisz plik',
+        renameFailed: 'Nie udało się zmienić nazwy pliku',
         unsavedChanges: 'Niezapisane zmiany',
         youHaveUnsavedChanges: 'Masz niezapisane zmiany w "{title}". Czy chcesz je zapisać przed zamknięciem?',
         openExportedFileTitle: 'Otworzyć wyeksportowany plik?',
