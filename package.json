@@ -1,7 +1,7 @@
 {
-	"name": "markpad",
+	"name": "markpad-live",
 	"version": "2.9.2",
-	"description": "Light as Notepad, elegant as Markdown.",
+	"description": "Live Markdown desktop editor powered by Milkdown.",
 	"type": "module",
 	"imports": {
 		"#lib/*": "./src/lib/*"

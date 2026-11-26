@@ -502,8 +502,8 @@
 						class="home-menu-footer"
 						onclick={() => {
 							popovers.homeMenuOpen = false;
-							openUrl('https://github.com/alecdotdev/Markpad')
-								.catch(() => window.open('https://github.com/alecdotdev/Markpad', '_blank'));
+							openUrl('https://github.com/loopix8000/markpad-live')
+								.catch(() => window.open('https://github.com/loopix8000/markpad-live', '_blank'));
 						}}>
 						v{appVersion}
 					</button>

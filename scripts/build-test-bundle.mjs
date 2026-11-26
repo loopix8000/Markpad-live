@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 const root = process.cwd();
 const identifier = process.env.MARKPAD_TEST_BUNDLE_ID;
 
-if (!identifier || !identifier.startsWith('dev.') || identifier === 'com.alecdotdev.markpad') {
+if (!identifier || !identifier.startsWith('dev.') || identifier === 'io.github.loopix8000.markpadlive') {
 	throw new Error('Set MARKPAD_TEST_BUNDLE_ID to a non-production identifier beginning with dev.');
 }
 
@@ -15,7 +15,7 @@ const { version } = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8
 
 const config = JSON.stringify({
 	identifier,
-	productName: `Markpad ${version} Test`,
+	productName: `Markpad Live ${version} Test`,
 	bundle: { targets: ['app'], createUpdaterArtifacts: false },
 });
 execFileSync('npm', ['run', 'tauri', '--', 'build', '--bundles', 'app', '--config', config], {

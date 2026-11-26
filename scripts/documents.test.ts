@@ -748,7 +748,7 @@ describe('file associations', () => {
 			} else {
 				assert.equal(association.mimeType, undefined);
 			}
-			assert.equal(association.name, 'Markdown File');
+			assert.equal(association.name, 'MarkpadLive.Markdown');
 		}
 	});
 });

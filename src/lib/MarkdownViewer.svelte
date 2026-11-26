@@ -324,7 +324,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	let htmlContent = $derived(tabManager.activeTab?.content ?? '');
 	let scrollTop = $derived(tabManager.activeTab?.scrollTop ?? 0);
 	let isScrolled = $derived(scrollTop > 0);
-	let windowTitle = $derived(tabManager.activeTab?.title ?? 'Markpad');
+	let windowTitle = $derived(tabManager.activeTab?.title ?? 'Markpad Live');
 	let isScrollSynced = $derived(tabManager.activeTab?.isScrollSynced ?? false);
 	let canGoBackInFileHistory = $derived(tabManager.activeTabId ? tabManager.canGoBack(tabManager.activeTabId) : false);
 	let canGoForwardInFileHistory = $derived(tabManager.activeTabId ? tabManager.canGoForward(tabManager.activeTabId) : false);
@@ -2729,7 +2729,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		isScrolled={false}
 		currentFile={''}
 		{liveMode}
-		windowTitle="Markpad"
+		windowTitle="Markpad Live"
 		showHome={false}
 		zoomLevel={settings.zoomLevel}
 		onnewFile={handleNewFile}

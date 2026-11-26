@@ -9,45 +9,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe438c63458706e03479442743baae6c88256498e6431708f6dfc520a26515d3"
 
 [[package]]
-name = "Markpad"
-version = "2.9.2"
-dependencies = [
- "arboard",
- "base64 0.22.1",
- "chardetng",
- "comrak",
- "encoding_rs",
- "font-kit",
- "http",
- "http-range",
- "image",
- "notify",
- "opener",
- "percent-encoding",
- "regex",
- "reqwest",
- "serde",
- "serde_json",
- "specta",
- "specta-typescript",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-opener",
- "tauri-plugin-prevent-default",
- "tauri-plugin-process",
- "tauri-plugin-single-instance",
- "tauri-plugin-updater",
- "tauri-plugin-window-state",
- "tauri-specta",
- "tauri-utils",
- "webview2-com",
- "windows 0.62.2",
- "winreg",
- "zip 2.4.2",
-]
-
-[[package]]
 name = "adler2"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2835,6 +2796,45 @@ name = "lru-slab"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
+
+[[package]]
+name = "markpad-live"
+version = "2.9.2"
+dependencies = [
+ "arboard",
+ "base64 0.22.1",
+ "chardetng",
+ "comrak",
+ "encoding_rs",
+ "font-kit",
+ "http",
+ "http-range",
+ "image",
+ "notify",
+ "opener",
+ "percent-encoding",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "specta",
+ "specta-typescript",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-opener",
+ "tauri-plugin-prevent-default",
+ "tauri-plugin-process",
+ "tauri-plugin-single-instance",
+ "tauri-plugin-updater",
+ "tauri-plugin-window-state",
+ "tauri-specta",
+ "tauri-utils",
+ "webview2-com",
+ "windows 0.62.2",
+ "winreg",
+ "zip 2.4.2",
+]
 
 [[package]]
 name = "markup5ever"

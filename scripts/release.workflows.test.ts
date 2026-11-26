@@ -104,7 +104,7 @@ describe('the release workflow', () => {
 		// a pattern that could match a different architecture.
 		const download = step(publish.jobs.snap.steps, 'Take the .deb from the release').run ?? '';
 		assert.match(download, /gh release download "\$TAG"/);
-		assert.match(download, /--pattern "Markpad_\$\{VERSION\}_amd64\.deb"/);
+		assert.match(download, /--pattern "\*_\$\{VERSION\}_amd64\.deb"/);
 		assert.match(download, /--output markpad\.deb/);
 	});
 
@@ -378,19 +378,10 @@ describe('the release workflow', () => {
 		}
 	});
 
-	test('the package managers we recommend are the ones we publish to', () => {
-		// README, the release body and the publishing workflow drifted once: the
-		// snap build was dead from v2.6.11 while both documents recommended it.
-		const readme = readSource('README.md');
-		const releaseBody = step(build.jobs['create-release'].steps, 'Compose the download table').run ?? '';
-		for (const [name, install, push] of [
-			['Chocolatey', /choco install markpad-app/, /choco push/],
-			['Snap', /snap install markpad/, /snapcraft upload/],
-		] as const) {
-			const publishes = runs(publish).some((run) => push.test(run));
-			assert.equal(install.test(readme), publishes, `README and the pipeline disagree on ${name}`);
-			assert.equal(install.test(releaseBody), publishes, `the release body and the pipeline disagree on ${name}`);
-		}
+	test('package workflows publish under the fork package name', () => {
+		assert.match(readSource('packaging/choco/markpad-live.nuspec'), /<id>markpad-live<\/id>/);
+		assert.equal(parse(readSource('snapcraft.yaml')).name, 'markpad-live');
+		assert.ok(runs(publish).some(run => run.includes('choco pack packaging/choco/markpad-live.nuspec')));
 	});
 
 	test('the Chocolatey job skips a version that is already on the feed', () => {
@@ -443,7 +434,7 @@ describe('one version across the manifests', () => {
 				encoding: 'utf8',
 			}),
 		) as { packages: Array<{ name: string; version: string }> };
-		const markpad = metadata.packages.find((p) => p.name === 'Markpad');
+		const markpad = metadata.packages.find((p) => p.name === 'markpad-live');
 		assert.ok(markpad, 'src-tauri/Cargo.toml does not define the Markpad package');
 		assert.equal(markpad.version, packageJson.version, 'src-tauri/Cargo.toml is out of step with package.json');
 

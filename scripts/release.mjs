@@ -3,7 +3,7 @@
  * Set the app version, in all three places, from one argument.
  *
  * The version is one fact and the repository writes it three times:
- * package.json, src-tauri/Cargo.toml, and the `Markpad` entry in
+ * package.json, src-tauri/Cargo.toml, and the `markpad-live` entry in
  * src-tauri/Cargo.lock. RELEASING.md names the first two; the lock is the one
  * that gets forgotten, because nothing in the editing loop reads it. A bump
  * without it lands green and stays wrong until the next person's `cargo build`
@@ -53,7 +53,7 @@ edit('src-tauri/Cargo.toml', /(\[package\][\s\S]*?\nversion = ")[^"]+(")/, `$1${
 
 // The lock is not edited by hand -- cargo owns its format, and it is the file
 // this whole script exists for.
-execFileSync('cargo', ['update', '-p', 'Markpad', '--precise', version], {
+execFileSync('cargo', ['update', '-p', 'markpad-live', '--precise', version], {
 	cwd: 'src-tauri',
 	stdio: 'inherit',
 });
@@ -63,7 +63,7 @@ const seen = {
 	'src-tauri/Cargo.toml': /\[package\][\s\S]*?\nversion = "([^"]+)"/.exec(
 		readFileSync('src-tauri/Cargo.toml', 'utf8'),
 	)?.[1],
-	'src-tauri/Cargo.lock': /\[\[package\]\]\nname = "Markpad"\nversion = "([^"]+)"/.exec(
+	'src-tauri/Cargo.lock': /\[\[package\]\]\nname = "markpad-live"\nversion = "([^"]+)"/.exec(
 		readFileSync('src-tauri/Cargo.lock', 'utf8'),
 	)?.[1],
 };

@@ -4,7 +4,7 @@ name: Publish Packages
 # matrix in build.yml, which put an irreversible side effect before the thing
 # that decides whether a release happens at all.
 #
-# It is not hypothetical. Chocolatey's markpad-app 2.7.2 was published at
+# It is not hypothetical. Chocolatey's markpad-live 2.7.2 was published at
 # 15:37 UTC on 2026-08-07 by run 31192564528 -- a run that then failed on Linux
 # and produced no release. The release users actually got came out of a
 # different run three hours later. Nothing can un-push a Chocolatey version.
@@ -68,9 +68,9 @@ jobs:
         shell: bash
         run: |
           VERSION="${TAG#v}"
-          feed="https://community.chocolatey.org/api/v2/Packages()?\$filter=Id%20eq%20'markpad-app'%20and%20Version%20eq%20'${VERSION}'"
+          feed="https://community.chocolatey.org/api/v2/Packages()?\$filter=Id%20eq%20'markpad-live'%20and%20Version%20eq%20'${VERSION}'"
           if curl -fsS --max-time 30 "$feed" | grep -q "<d:Version>${VERSION}</d:Version>"; then
-            echo "::notice::markpad-app ${VERSION} is already on Chocolatey. Nothing to push."
+            echo "::notice::markpad-live ${VERSION} is already on Chocolatey. Nothing to push."
             echo "published=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -89,9 +89,9 @@ jobs:
           # the same bytes, and VERIFICATION.txt below promises it is.
           mkdir -p packaging/choco/tools
           gh release download "$TAG" \
-            --pattern "Markpad_${VERSION}_x64.exe" \
+            --pattern "markpad-live_${VERSION}_x64.exe" \
             --dir packaging/choco/tools
-          mv "packaging/choco/tools/Markpad_${VERSION}_x64.exe" packaging/choco/tools/Markpad.exe
+          mv "packaging/choco/tools/markpad-live_${VERSION}_x64.exe" packaging/choco/tools/markpad-live.exe
           cp LICENSE packaging/choco/tools/LICENSE.txt
 
       - name: Record what the package contains
@@ -99,8 +99,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SHA=$(sha256sum packaging/choco/tools/Markpad.exe | cut -d' ' -f1)
-          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/Markpad_${VERSION}_x64.exe"
+          SHA=$(sha256sum packaging/choco/tools/markpad-live.exe | cut -d' ' -f1)
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/markpad-live_${VERSION}_x64.exe"
           {
             echo
             echo "For this package:"
@@ -119,10 +119,10 @@ jobs:
           CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
         run: |
           set -euo pipefail
-          choco pack packaging/choco/markpad-app.nuspec --version "$VERSION" --outdir .
-          gh release upload "$TAG" "markpad-app.${VERSION}.nupkg" --clobber
+          choco pack packaging/choco/markpad-live.nuspec --version "$VERSION" --outdir .
+          gh release upload "$TAG" "markpad-live.${VERSION}.nupkg" --clobber
           choco apikey --key "$CHOCO_API_KEY" --source https://push.chocolatey.org/
-          choco push "markpad-app.${VERSION}.nupkg" --source https://push.chocolatey.org/
+          choco push "markpad-live.${VERSION}.nupkg" --source https://push.chocolatey.org/
 
   snap:
     runs-on: ubuntu-24.04
@@ -154,7 +154,7 @@ jobs:
           VERSION="${TAG#v}"
           gh release download "$TAG" \
             --repo "$GITHUB_REPOSITORY" \
-            --pattern "Markpad_${VERSION}_amd64.deb" \
+            --pattern "*_${VERSION}_amd64.deb" \
             --output markpad.deb
           dpkg-deb -f markpad.deb Package Version Architecture
 

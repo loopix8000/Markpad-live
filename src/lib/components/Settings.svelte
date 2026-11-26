@@ -978,8 +978,8 @@
 						<button
 							class="github-btn"
 							onclick={() =>
-								openUrl('https://github.com/alecdotdev/Markpad')
-									.catch(() => window.open('https://github.com/alecdotdev/Markpad', '_blank'))}
+								openUrl('https://github.com/loopix8000/markpad-live')
+									.catch(() => window.open('https://github.com/loopix8000/markpad-live', '_blank'))}
 							aria-label="GitHub">
 							<svg viewBox="0 0 24 24" class="github-icon" fill="currentColor">
 									<path

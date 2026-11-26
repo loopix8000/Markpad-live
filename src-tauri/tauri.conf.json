@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Markpad",
+  "productName": "Markpad Live",
   "version": "../package.json",
-  "identifier": "com.alecdotdev.markpad",
+  "identifier": "io.github.loopix8000.markpadlive",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -46,14 +46,14 @@
           "public.markdown"
         ],
         "mimeType": "text/markdown",
-        "name": "Markdown File",
-        "description": "Opens Markdown files with Markpad",
+        "name": "MarkpadLive.Markdown",
+        "description": "Opens Markdown files with Markpad Live",
         "role": "Editor"
       },
       {
         "ext": ["mdown", "mkd"],
-        "name": "Markdown File",
-        "description": "Opens Markdown files with Markpad",
+        "name": "MarkpadLive.Markdown",
+        "description": "Opens Markdown files with Markpad Live",
         "role": "Editor"
       }
     ],
@@ -74,7 +74,7 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://github.com/sftwrdotdev/Markpad/releases/latest/download/latest.json"
+        "https://github.com/loopix8000/markpad-live/releases/latest/download/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEIzMENBRkQ5NjFGRkM4NDcKUldSSHlQOWgyYThNczhINFc4VzVmVEcrS2JGRlRKRWFTVHVTVU9saC9WdFJQZjc0RjZzNmdQRGcK",
       "windows": { "installMode": "passive" }

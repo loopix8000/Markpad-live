@@ -1,13 +1,13 @@
 [package]
-name = "Markpad"
+name = "markpad-live"
 version = "2.9.2"
-description = "Simple Markdown viewer and text editor"
+description = "Live Markdown desktop editor"
 authors = ["Alec Ames <dev@alecames.com>"]
 license = "BSD-3-Clause"
 edition = "2021"
 
 [[bin]]
-name = "Markpad"
+name = "markpad-live"
 path = "src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -16,7 +16,7 @@ path = "src/main.rs"
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
-name = "markpad_lib"
+name = "markpad_live_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

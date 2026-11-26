@@ -1514,7 +1514,7 @@ fn build_viewer_window(app: &AppHandle, label: &str) -> Result<(), String> {
     #[allow(unused_mut)]
     let mut builder =
         tauri::WebviewWindowBuilder::new(app, label, tauri::WebviewUrl::App("index.html".into()))
-            .title("Markpad")
+            .title("Markpad Live")
             .inner_size(1000.0, 800.0)
             .min_inner_size(400.0, 300.0)
             .visible(false)

@@ -207,7 +207,7 @@ fn setup<R: Runtime>(app: &mut tauri::App<R>) -> Result<(), Box<dyn std::error::
         window_runtime::LAUNCH_LABEL,
         tauri::WebviewUrl::App("index.html".into()),
     )
-    .title("Markpad")
+    .title("Markpad Live")
     .inner_size(900.0, 650.0)
     .min_inner_size(400.0, 300.0)
     .visible(false)
