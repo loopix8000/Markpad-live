@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Taulukko: rivi ylle · Muualla: tyhjä rivi ylle'
     },
     menu: {
+        copyDiagramAsImage: 'Kopioi kaavio kuvana',
+        liveEditor: 'Visuaalinen muokkaus',
+        sourceEditor: 'Lähdetekstin muokkaus',
+        image: 'Kuva',
+        markdownSource: 'Muokkaa lohkoa Markdownina',
         toggleFullScreen: 'Koko näyttö päälle/pois',
         about: 'Tietoja Markpadista',
         services: 'Palvelut',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Vain kokonaiset sanat'
     },
     toast: {
+        diagramCopied: 'Kaavio kopioitiin kuvana',
+        failedToCopyDiagram: 'Kaavion kopiointi epäonnistui',
         recoveryFailed: 'Tallentamattomia muutoksia ei voitu säilyttää.',
         imageSavedSuccessfully: 'Kuva tallennettu onnistuneesti',
         failedToSaveImage: 'Kuvan tallennus epäonnistui',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Avaa tiedosto',
     },
     editor: {
+        runCommand: 'Suorita komento',
+        apply: 'Käytä',
+        selectTableSize: 'Valitse taulukon koko',
+        tableSize: 'Sarakkeet: {{columns}}, rivit: {{rows}}',
         status: {
             lineCol: 'Rivi {{line}}, Sarake {{col}}',
             selected: '{{count}} valittu',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Oletus tumma'
     },
     tooltip: {
+        hideEditorToolbar: 'Piilota editorin työkalurivi',
         menu: 'Valikko',
         more: 'Lisää',
         back: 'Takaisin',

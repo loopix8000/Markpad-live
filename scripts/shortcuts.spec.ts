@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 
-import { flushSync } from 'svelte';
+import { flushSync, mount, unmount } from 'svelte';
 import { beforeAll, describe, onTestFinished, test } from 'vitest';
 
 import { handleModalBackdropContextMenu } from '../src/lib/utils/modalContextMenu.js';
@@ -470,6 +470,51 @@ describe('modal backdrop', () => {
 });
 
 describe('choice dialog', () => {
+	test('unsaved changes offer distinct actions and Enter follows the focused button', async () => {
+		const { default: Modal } = await import('../src/lib/components/Modal.svelte');
+		const { settings } = await import('../src/lib/stores/settings.svelte.js');
+		const { loadLocale, t } = await import('../src/lib/utils/i18n.js');
+		const previousLanguage = settings.language;
+		await loadLocale('ko');
+		settings.language = 'ko';
+		const target = document.createElement('div');
+		document.body.append(target);
+		const choices: string[] = [];
+		const dialog = mount(Modal, {
+			target,
+			intro: false,
+			props: {
+				show: true,
+				showSave: true,
+				kind: 'warning',
+				title: t('modal.unsavedChanges', 'ko'),
+				message: t('modal.youHaveUnsavedChanges', 'ko').replace('{title}', '제목 없음'),
+				confirmLabel: t('settings.discard', 'ko'),
+				onconfirm: () => choices.push('discard'),
+				oncancel: () => choices.push('cancel'),
+				onsave: () => choices.push('save'),
+			},
+		});
+		onTestFinished(() => {
+			void unmount(dialog);
+			target.remove();
+			settings.language = previousLanguage;
+		});
+		flushSync();
+
+		const buttons = [...target.querySelectorAll('button')];
+		assert.deepEqual(buttons.map((button) => button.textContent?.trim()), ['저장하지 않고 닫기', '취소', '저장']);
+		for (const button of buttons) {
+			button.focus();
+			const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+			assert.equal(button.dispatchEvent(enter), true);
+			button.click();
+		}
+		assert.deepEqual(choices, ['discard', 'cancel', 'save']);
+		buttons[2].dispatchEvent(new KeyboardEvent('keydown', { key: 'y', bubbles: true, cancelable: true }));
+		assert.deepEqual(choices, ['discard', 'cancel', 'save']);
+	});
+
 	test('a second dialog settles the first instead of orphaning it', async () => {
 		// One dialog, one resolver. A second question used to overwrite the first
 		// caller's resolver, so that caller awaited forever — when it was the close
@@ -495,7 +540,7 @@ describe('document context menu routing', () => {
 
 	test('document context menus do not open while a modal is active', () => {
 		// Every case answers 'none' with a dialog up, the editor's included.
-		for (const target of [inside('<p>text</p>', 'p'), inside('<div class="editor-container"><textarea></textarea></div>', 'textarea')]) {
+		for (const target of [inside('<p>text</p>', 'p'), inside('<div class="live-scroll"><textarea></textarea></div>', 'textarea')]) {
 			assert.equal(contextMenuFor(target, { modalOpen: true, inApp: true }), 'none');
 		}
 		assert.equal(contextMenuFor(inside('<p>text</p>', 'p'), { modalOpen: false, inApp: true }), 'document');

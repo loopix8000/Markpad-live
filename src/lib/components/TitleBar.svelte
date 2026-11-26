@@ -47,7 +47,6 @@
 
 		ontoggleEditorToolbar,
 		onsetViewMode,
-		onswapPanes,
 		isEditing,
 		ontabclick,
 		zoomLevel,
@@ -90,7 +89,6 @@
 
 		ontoggleEditorToolbar?: () => void;
 		onsetViewMode: (mode: ViewMode) => void;
-		onswapPanes?: () => void;
 		isEditing: boolean;
 		ontabclick?: () => void;
 		zoomLevel?: number;
@@ -224,6 +222,7 @@
 			showHome,
 			currentFile,
 			isSplit: Boolean(tabManager.activeTab?.isSplit),
+			sourceOnly: tabManager.activeTab?.sourceOnly,
 			isEditing,
 			zoomLevel,
 		}),
@@ -232,14 +231,14 @@
 	// Edit and preview sit on the sides their panes take in split view (#1041).
 	let viewModes = $derived.by(() => {
 		const modes: { id: ViewMode; label: string; shortcut?: string }[] = [
-			{ id: 'edit', label: t('menu.editor', currentLanguage), shortcut: 'view-toggle-edit' },
+			{ id: 'edit', label: t('menu.liveEditor', currentLanguage), shortcut: 'view-toggle-edit' },
 			{ id: 'split', label: t('menu.splitView', currentLanguage), shortcut: 'view-toggle-split' },
-			{ id: 'preview', label: t('settings.preview', currentLanguage) },
+			{ id: 'source', label: t('menu.sourceEditor', currentLanguage) },
 		];
-		return settings.splitEditorSide === 'right' ? modes.reverse() : modes;
+		return modes;
 	});
 
-	let currentViewMode = $derived(viewModeOf({ isEditing, isSplit: Boolean(tabManager.activeTab?.isSplit) }));
+	let currentViewMode = $derived(viewModeOf({ isEditing, isSplit: Boolean(tabManager.activeTab?.isSplit), sourceOnly: tabManager.activeTab?.sourceOnly }));
 
 	let configuredActionIds = $derived.by(() =>
 		getConfiguredTitlebarToolbarIds(
@@ -805,8 +804,8 @@
 								onmousedown={(e) => e.preventDefault()}
 								onmouseleave={hideTooltip}>
 								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-									{#if mode.id === 'preview'}
-										<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
+									{#if mode.id === 'source'}
+										<path d="m7 7-5 5 5 5m10-10 5 5-5 5m-4-13-2 16" />
 									{:else if mode.id === 'split'}
 										<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line>
 									{:else}
@@ -818,21 +817,6 @@
 							</button>
 						{/each}
 					</div>
-				{:else if id === 'swap'}
-					<button
-						class="title-action-btn"
-						onclick={() => onswapPanes?.()}
-						aria-label={t('tooltip.swapPanes', currentLanguage)}
-											onmouseenter={(e) => showTooltip(e, t('tooltip.swapPanes', currentLanguage))}
-						onmousedown={(e) => e.preventDefault()}
-						onmouseleave={hideTooltip}
-						transition:fly={{ x: 10, duration: 200 }}>
-						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-							><rect x="3" y="11" width="7" height="10" rx="1"></rect><rect x="14" y="11" width="7" height="10" rx="1"></rect><path
-								d="M6.5 8C6.5 3.5 17.5 3.5 17.5 8"></path><polyline points="4.5 6 6.5 8.4 8.5 6"></polyline><polyline points="15.5 6 17.5 8.4 19.5 6"></polyline
-							></svg>
-						<span class="action-label">{t('menu.swapPanes', currentLanguage)}</span>
-					</button>
 				{:else if id === 'sync'}
 					<button
 						class="title-action-btn {isScrollSynced ? 'active' : ''}"

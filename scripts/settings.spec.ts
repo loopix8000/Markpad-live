@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 
 import { flushSync } from 'svelte';
-import { afterAll, describe, onTestFinished, test } from 'vitest';
+import { afterAll,describe,onTestFinished,test } from 'vitest';
 
-import { getSupportedLanguages, type TranslationKey } from '../src/lib/utils/i18n.js';
+import { getSupportedLanguages,type TranslationKey } from '../src/lib/utils/i18n.js';
 import { translations } from './allTranslations.js';
 import { readSource } from './sourceTree.js';
-import { updatedEditorOptions } from '../src/lib/utils/editorOptions.js';
 
 // Plain TypeScript, no runes: safe to import statically, unlike the store below.
 describe('settings persistence', async () => {
@@ -934,13 +933,13 @@ describe('settings persistence', async () => {
 		assert.equal(restarted.preZenState, null, 'the snapshot is spent once it has been restored');
 	});
 
-	test('the line-highlight toggle and zen mode reach the editor as Monaco\'s string enum', () => {
+	test('the line-highlight toggle and zen mode restore the stored highlight preference', () => {
 		// A ternary on the stored 'line' / 'none' can only produce "line": any
 		// non-empty string is truthy. So the store is driven the way the menu and
 		// zen mode drive it, and what reaches an open editor is read back.
 		resetStorage();
 		const store = createStore();
-		const reaching = () => updatedEditorOptions(store, 100, true, false).renderLineHighlight;
+		const reaching = () => store.renderLineHighlight;
 		assert.equal(reaching(), 'line', 'the default draws the line');
 		store.toggleLineHighlight();
 		assert.equal(reaching(), 'none', 'the toggle turns it off');
@@ -1042,12 +1041,12 @@ describe('settings persistence', async () => {
 		assert.ok(OPEN_FILE_TARGET_OPTIONS.every((option) => isOpenFileTarget(option.value)));
 	});
 
-	test('the setting is one control, defaulting to preview', async () => {
+	test('the setting is one control, defaulting to live editing', async () => {
 		const { OPEN_FILE_MODE_OPTIONS, isOpenFileMode } = await import('../src/lib/utils/openFileMode.js');
 		resetStorage();
-		assert.equal(createStore().openFileMode, 'preview');
+		assert.equal(createStore().openFileMode, 'editor');
 		// One select with the three answers the store accepts, each under its own label.
-		assert.deepEqual(OPEN_FILE_MODE_OPTIONS.map((option) => option.value), ['preview', 'editor', 'split']);
+		assert.deepEqual(OPEN_FILE_MODE_OPTIONS.map((option) => option.value), ['editor', 'split', 'source', 'preview']);
 		assert.ok(OPEN_FILE_MODE_OPTIONS.every((option) => isOpenFileMode(option.value)));
 		const labels = OPEN_FILE_MODE_OPTIONS.map((option) => option.labelKey);
 		assert.equal(new Set(labels).size, labels.length);

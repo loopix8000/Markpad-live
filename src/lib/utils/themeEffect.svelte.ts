@@ -49,13 +49,6 @@ export function followTheme(getTheme: () => string, deps: ThemeEffectDeps): void
 			clearVscodeTheme();
 			deps.saveStartupAppearance(theme);
 			recolourDiagrams();
-			// No Monaco write here. It used to set `vs`/`vs-dark` through the
-			// `monaco` global, and because a child's effects run before its
-			// parent's it landed AFTER `Editor`'s own — stripping the editor of
-			// `app-theme-*` on every theme change. `editorTheme.ts`'s
-			// `monacoThemeName` is the one answer now, and `Editor` is the only
-			// pane that asks it; with no editor mounted there is nothing to
-			// paint, and a later mount reads the theme from the same seam.
 		} else {
 			const name = theme.replace('vscode:', '');
 			loadVscodeTheme(name, deps.readVscodeTheme).then((applied) => {

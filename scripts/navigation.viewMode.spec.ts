@@ -176,6 +176,18 @@ describe('jump to the selected fragment', () => {
 		assert.deepEqual(viewMode.pendingEditReveal, PICKED);
 	});
 
+	test('source mode keeps the tab editable and returns to the same document in live and split views', async () => {
+		const { tab, viewMode } = setup('read');
+		await viewMode.setViewMode('source');
+		assert.equal(tab.isEditing, true);
+		assert.equal(tab.sourceOnly, true);
+		await viewMode.setViewMode('split');
+		assert.equal(tab.isSplit, true);
+		await viewMode.setViewMode('edit');
+		assert.equal(tab.isSplit, false);
+		assert.equal(tab.sourceOnly, false);
+	});
+
 	test('split view with nothing selected is deliberately inert', async () => {
 		// The editor is already on screen, so the ability ⌘E asks for is already
 		// granted; with no selection there is nothing to travel to either.

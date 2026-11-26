@@ -104,27 +104,9 @@ export const SETTINGS_PANES: Record<'editor' | 'preview' | 'appearance' | 'files
 				unit: 'chars',
 				inactive: (s) => s.wordWrap !== 'wordWrapColumn',
 			},
-			{
-				kind: 'toggle',
-				id: 'editor-line-numbers',
-				labelKey: 'settings.lineNumbers',
-				checked: (s) => s.lineNumbers === 'on',
-				toggle: (s) => s.toggleLineNumbers(),
-			},
-			{ kind: 'toggle', id: 'editor-minimap', labelKey: 'settings.minimap', key: 'minimap' },
-			{ kind: 'toggle', id: 'editor-vim-mode', labelKey: 'settings.vimMode', key: 'vimMode' },
 			{ kind: 'toggle', id: 'editor-status-bar', labelKey: 'settings.statusBar', key: 'statusBar' },
 			// The word count is drawn in the status bar: without one it shows nothing.
 			{ kind: 'toggle', id: 'editor-word-count', labelKey: 'settings.wordCount', key: 'wordCount', inactive: (s) => !s.statusBar },
-			{ kind: 'toggle', id: 'editor-show-whitespace', labelKey: 'settings.showWhitespace', key: 'showWhitespace' },
-			{ kind: 'toggle', id: 'editor-sticky-scroll', labelKey: 'settings.stickyScroll', key: 'stickyScroll' },
-			{
-				kind: 'toggle',
-				id: 'editor-line-highlight',
-				labelKey: 'settings.lineHighlight',
-				checked: (s) => s.renderLineHighlight === 'line',
-				toggle: (s) => s.toggleLineHighlight(),
-			},
 		],
 	},
 	preview: {

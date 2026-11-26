@@ -577,18 +577,8 @@ export class SettingsStore {
 	theme = $state<ThemeSetting>(DEFAULT_THEME);
 	pinnedToc = $state(false);
 	tocSide = $state<'left' | 'right'>('left');
-	/**
-	 * Which side of a split the editor takes, and so which side the preview
-	 * takes (#184). Read only while a tab is split: with one pane on screen it
-	 * fills the container and there is no order to state.
-	 *
-	 * Window-wide rather than per tab, like `tocSide` and unlike `splitRatio`.
-	 * A ratio is about one document — how much of it you want to see while you
-	 * write — and a reader sets it again per file. Which hand the editor is
-	 * under is about the reader, and answering it once per tab would mean
-	 * answering it again every time one is opened.
-	 */
-	splitEditorSide = $state<'left' | 'right'>('left');
+	// 분할 보기의 왼쪽은 라이브 문서, 오른쪽은 Markdown 원문이다.
+	readonly splitEditorSide = 'left' as const;
 	tocWidth = $state(TOC_WIDTH_RANGE.default);
 	/**
 	 * Where the open documents are listed (#884): across the title bar, or as
@@ -754,9 +744,6 @@ export class SettingsStore {
 		this.tocSide = this.tocSide === 'left' ? 'right' : 'left';
 	}
 
-	toggleSplitEditorSide() {
-		this.splitEditorSide = this.splitEditorSide === 'left' ? 'right' : 'left';
-	}
 
 	setTocWidth(width: number) {
 		this.tocWidth = clampToRange(width, TOC_WIDTH_RANGE);
@@ -1032,13 +1019,6 @@ export function createSettingsPersistence(): PersistedSetting<SettingsStore>[] {
 			read: (s) => s.tocFollows,
 			load: (s, raw) => {
 				if (raw === 'scroll' || raw === 'cursor') s.tocFollows = raw;
-			},
-		},
-		{
-			key: 'editor.splitEditorSide',
-			read: (s) => s.splitEditorSide,
-			load: (s, raw) => {
-				if (raw === 'left' || raw === 'right') s.splitEditorSide = raw;
 			},
 		},
 		numberSetting('editor.tocWidth', TOC_WIDTH_RANGE, (s) => s.tocWidth, (s, v) => { s.tocWidth = v; }),

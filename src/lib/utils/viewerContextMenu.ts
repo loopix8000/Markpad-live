@@ -11,10 +11,8 @@ import { formatChord, modifierFor } from './shortcuts.js';
 export function contextMenuFor(target: Element, state: { modalOpen: boolean; inApp: boolean }): 'none' | 'editor' | 'native' | 'document' {
 	if (state.modalOpen) return 'none';
 	if (!state.inApp) return 'none';
-	// The editor gets its own menu, and this branch has to come first:
-	// Monaco takes input through a hidden `<textarea>`, so the text-field
-	// carve-out below would otherwise claim every right-click in it.
-	if (target.closest('.editor-container')) return 'editor';
+	// 두 편집면의 문서 영역은 같은 잘라내기·복사·붙여넣기 경로를 사용한다.
+	if (target.closest('.live-scroll')) return 'editor';
 	// Text fields keep the webview's own editing menu (Cut/Copy/Paste);
 	// the document menu is about the rendered preview and has no edit
 	// items, so swallowing the native one leaves no way to paste.
@@ -41,6 +39,7 @@ export function editorContextMenuItems(
 	pane: () => EditorMenuPane | null | undefined,
 	language: LanguageCode,
 	osType: string,
+	source = false,
 ): ContextMenuItem[] {
 	// Chords only for the items people learn the shortcut from. Undo is
 	// listed because Windows has no menu bar to find it in (#997).
@@ -58,18 +57,9 @@ export function editorContextMenuItems(
 		{ label: t('menu.copy', language), onClick: () => pane()?.copyToClipboard() },
 		{ label: t('menu.paste', language), onClick: () => pane()?.pasteFromClipboard() },
 		{ label: t('menu.selectAll', language), onClick: () => pane()?.selectAll() },
-		{ separator: true },
-		// Monaco's other items need a language provider Markdown lacks.
-		{
-			label: t('menu.commandPalette', language),
-			shortcut: 'F1',
-			onClick: () => pane()?.runEditorAction('editor.action.quickCommand'),
-		},
-		{
-			label: t('menu.changeAllOccurrences', language),
-			shortcut: chord('Mod+F2'),
-			onClick: () => pane()?.runEditorAction('editor.action.changeAll'),
-		},
+		...(source ? [] : [{ separator: true },
+		{ label: t('menu.commandPalette', language), shortcut: chord('Mod+P'), onClick: () => pane()?.runEditorAction('command-palette') },
+		{ label: t('menu.markdownSource',language), onClick: () => pane()?.runEditorAction('edit-source') }]),
 	];
 }
 

@@ -24,6 +24,7 @@
 	},
 	"license": "BSD-3-Clause",
 	"dependencies": {
+		"@milkdown/kit": "7.23.0",
 		"@sveltejs/kit": "^3.1.0",
 		"@tauri-apps/api": "^2",
 		"@tauri-apps/plugin-dialog": "^2.5.0",
@@ -35,8 +36,8 @@
 		"highlightjs-svelte": "^1.0.6",
 		"katex": "^0.18.4",
 		"mermaid": "^11.16.0",
-		"monaco-editor": "^0.55.1",
-		"monaco-vim": "^0.4.4",
+		"remark-frontmatter": "5.0.0",
+		"remark-math": "6.0.0",
 		"svelte": "^5.57.2",
 		"yaml": "^2.9.0"
 	},

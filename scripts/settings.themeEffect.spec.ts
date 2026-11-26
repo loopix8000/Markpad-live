@@ -1,13 +1,12 @@
 import assert from 'node:assert/strict';
 import { flushSync } from 'svelte';
-import { afterEach, describe, test, vi } from 'vitest';
+import { afterEach,describe,test } from 'vitest';
 
 import { followTheme } from '../src/lib/utils/themeEffect.svelte.js';
 import { runeEffect } from './runeEffect.svelte.js';
 import { runeProps } from './runeProps.svelte.js';
 
 // The VS Code branch parses the theme through Monaco; only its two calls are needed.
-vi.mock('monaco-editor', () => ({ editor: { setTheme: vi.fn(), defineTheme: vi.fn() } }));
 
 /** The theme effect, driven by a real `$state` and real effects. */
 function harness(theme: string) {

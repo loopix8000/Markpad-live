@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Таблица: строка выше · Иначе: пустая строка выше'
     },
     menu: {
+        copyDiagramAsImage: 'Копировать диаграмму как изображение',
+        liveEditor: 'Визуальный редактор',
+        sourceEditor: 'Исходный текст',
+        image: 'Изображение',
+        markdownSource: 'Редактировать блок в Markdown',
         toggleFullScreen: 'Переключить полноэкранный режим',
         about: 'О программе Markpad Live',
         services: 'Службы',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Слово целиком'
     },
     toast: {
+        diagramCopied: 'Диаграмма скопирована как изображение',
+        failedToCopyDiagram: 'Не удалось скопировать диаграмму',
         recoveryFailed: 'Не удалось сохранить несохранённые изменения.',
         imageSavedSuccessfully: 'Изображение сохранено',
         failedToSaveImage: 'Не удалось сохранить изображение',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Открыть файл',
     },
     editor: {
+        runCommand: 'Выполнить команду',
+        apply: 'Применить',
+        selectTableSize: 'Выбрать размер таблицы',
+        tableSize: 'Столбцов: {{columns}}, строк: {{rows}}',
         status: {
             lineCol: 'Стр {{line}}, Стб {{col}}',
             selected: 'Выделено: {{count}}',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Тёмная по умолчанию'
     },
     tooltip: {
+        hideEditorToolbar: 'Скрыть панель инструментов редактора',
         menu: 'Меню',
         more: 'Ещё',
         back: 'Назад',

@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Tabel: baris di atas · Selain itu: baris kosong di atas'
     },
     menu: {
+        copyDiagramAsImage: 'Salin diagram sebagai gambar',
+        liveEditor: 'Editor visual',
+        sourceEditor: 'Editor sumber',
+        image: 'Gambar',
+        markdownSource: 'Edit blok sebagai Markdown',
         toggleFullScreen: 'Alihkan Layar Penuh',
         about: 'Tentang Markpad Live',
         services: 'Layanan',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Cocokkan seluruh kata'
     },
     toast: {
+        diagramCopied: 'Diagram disalin sebagai gambar',
+        failedToCopyDiagram: 'Gagal menyalin diagram',
         recoveryFailed: 'Tidak dapat mempertahankan perubahan yang belum disimpan.',
         imageSavedSuccessfully: 'Gambar berhasil disimpan',
         failedToSaveImage: 'Gagal menyimpan gambar',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Buka Berkas',
     },
     editor: {
+        runCommand: 'Jalankan perintah',
+        apply: 'Terapkan',
+        selectTableSize: 'Pilih ukuran tabel',
+        tableSize: '{{columns}} kolom × {{rows}} baris',
         status: {
             lineCol: 'Baris {{line}}, Kolom {{col}}',
             selected: '{{count}} dipilih',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Default Gelap'
     },
     tooltip: {
+        hideEditorToolbar: 'Sembunyikan bilah alat editor',
         menu: 'Menu',
         more: 'Lainnya',
         back: 'Kembali',

@@ -150,6 +150,10 @@ export default {
         modShiftEnter: '表格：上方加一行 · 其他：上方加空行'
     },
     menu: {
+        liveEditor: '实时编辑',
+        sourceEditor: '源码编辑',
+        image: '图片',
+        markdownSource: '编辑块的 Markdown 源文',
         toggleFullScreen: '切换全屏',
         about: '关于 Markpad Live',
         services: '服务',
@@ -361,6 +365,10 @@ export default {
         openFile: '打开文件',
     },
     editor: {
+        runCommand: '运行命令',
+        apply: '应用',
+        selectTableSize: '选择表格大小',
+        tableSize: '{{columns}} 列 × {{rows}} 行',
         status: {
             lineCol: '行 {{line}}, 列 {{col}}',
             selected: '已选择 {{count}}',
@@ -377,6 +385,7 @@ export default {
         addTagTo: '添加 {{field}} 标签'
     },
     tooltip: {
+        hideEditorToolbar: '隐藏编辑器工具栏',
         menu: '菜单',
         more: '更多',
         back: '后退',

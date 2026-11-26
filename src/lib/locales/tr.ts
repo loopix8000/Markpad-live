@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Tablo: üste satır · Başka yerde: üste boş satır'
     },
     menu: {
+        copyDiagramAsImage: 'Diyagramı resim olarak kopyala',
+        liveEditor: 'Görsel düzenleme',
+        sourceEditor: 'Kaynağı düzenle',
+        image: 'Görsel',
+        markdownSource: 'Bloğu Markdown olarak düzenle',
         toggleFullScreen: 'Tam Ekranı Aç/Kapat',
         about: 'Markpad Live Hakkında',
         services: 'Servisler',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Tam sözcük eşleştir'
     },
     toast: {
+        diagramCopied: 'Diyagram resim olarak kopyalandı',
+        failedToCopyDiagram: 'Diyagram kopyalanamadı',
         recoveryFailed: 'Kaydedilmemiş değişiklikler korunamadı.',
         imageSavedSuccessfully: 'Görüntü başarıyla kaydedildi',
         failedToSaveImage: 'Görüntü kaydedilemedi',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Dosya Aç',
     },
     editor: {
+        runCommand: 'Komutu çalıştır',
+        apply: 'Uygula',
+        selectTableSize: 'Tablo boyutunu seç',
+        tableSize: '{{columns}} sütun × {{rows}} satır',
         status: {
             lineCol: 'Satır {{line}}, Sütun {{col}}',
             selected: '{{count}} seçili',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Varsayılan Koyu'
     },
     tooltip: {
+        hideEditorToolbar: 'Düzenleyici araç çubuğunu gizle',
         menu: 'Menü',
         more: 'Daha Fazla',
         back: 'Geri',

@@ -722,7 +722,7 @@ export function stampImageGeneration(html: string): string {
  * against the document and served by the asset protocol, web and data URLs as
  * they are, `null` for none.
  */
-function localSrc(src: string, filePath: string): string | null {
+export function localSrc(src: string, filePath: string): string | null {
 	if (src.startsWith("http") || src.startsWith("data:")) return src;
 	try {
 		const resolved = resolveDocumentRelativePath(filePath, decodeURIComponent(src));

@@ -1,34 +1,30 @@
 import assert from 'node:assert/strict';
-import { describe, test } from 'node:test';
+import { describe,test } from 'node:test';
 
-import { PieceTreeTextBufferBuilder } from 'monaco-editor/esm/vs/editor/common/model/pieceTreeTextBuffer/pieceTreeTextBufferBuilder.js';
-import { DefaultEndOfLine } from 'monaco-editor/esm/vs/editor/common/standalone/standaloneEnums.js';
 
-import { createBoundedWriter, parseRecovery, recoverySnapshot, restoreRecords } from '../src/lib/sessions/unsavedRecovery.js';
+import { createBoundedWriter,parseRecovery,recoverySnapshot,restoreRecords } from '../src/lib/sessions/unsavedRecovery.js';
 import type { Tab } from '../src/lib/stores/tabs.svelte.js';
 import {
-	DROPPABLE_IMAGE_EXTENSIONS,
-	dropPaneFor,
-	dropZoneLabel,
-	handleDrop,
-	routeDroppedFile,
-	type DropAction,
-	type DropPane,
+DROPPABLE_IMAGE_EXTENSIONS,
+dropPaneFor,
+dropZoneLabel,
+handleDrop,
+routeDroppedFile,
+type DropAction,
+type DropPane,
 } from '../src/lib/utils/fileDrop.js';
-import { openDiffView } from '../src/lib/utils/diffView.js';
 import { HOME_TAB_PATH } from '../src/lib/utils/homeTab.js';
-import { autoSaveFailureNeedsToast, isAutoSaveEligible, type AutoSaveTabState } from '../src/lib/utils/autoSaveTimer.js';
+import { autoSaveFailureNeedsToast,isAutoSaveEligible,type AutoSaveTabState } from '../src/lib/utils/autoSaveTimer.js';
 import { asRendererLine } from '../src/lib/utils/lineCoordinates.js';
 import {
-	DEFAULT_OPEN_FILE_MODE,
-	isOpenFileMode,
-	resolveOpenFileMode,
+DEFAULT_OPEN_FILE_MODE,
+isOpenFileMode,
+resolveOpenFileMode,
 } from '../src/lib/utils/openFileMode.js';
 import { t } from '../src/lib/utils/i18n.js';
 import { MARKDOWN_OPEN_FILTERS } from '../src/lib/utils/markdownLinks.js';
-import { lineEndingLabel } from '../src/lib/utils/tabModels.js';
-import { buildTransferredTab, snapshotTab, validateTransferPayload, type TransferableTab } from '../src/lib/utils/tabTransfer.js';
-import { dispatchViewerKey, viewerCommandFor, type KeyContext } from '../src/lib/utils/viewerKeymap.js';
+import { buildTransferredTab,snapshotTab,validateTransferPayload,type TransferableTab } from '../src/lib/utils/tabTransfer.js';
+import { dispatchViewerKey,viewerCommandFor,type KeyContext } from '../src/lib/utils/viewerKeymap.js';
 import { translations } from './allTranslations.js';
 import { readSource } from './sourceTree.js';
 import { MARKDOWN_LINK_EXTENSIONS } from '../src/lib/utils/markdownLinks.js';
@@ -439,118 +435,6 @@ describe('unsaved recovery', () => {
 	});
 });
 
-// The status bar used to render `t('editor.status.crlf')` — the literal string
-// "CRLF", for every document, on every platform. `samples/stress-test.md` has
-// not got one CR byte in it and the app said CRLF about it.
-//
-// The label is now the model's own EOL, so this file drives real Monaco with
-// real CRLF and LF fixtures and asks what the label would say. The fixtures are
-// literals rather than files on disk for the reason `sourceTree.ts` explains at
-// length: on a Windows checkout Git decides what `\n` in a repo file means, and
-// a test about line endings cannot let it.
-describe('editor line ending', () => {
-	/**
-	 * A Monaco text buffer built exactly the way `monaco.editor.createModel` builds
-	 * one: `createTextBufferFactory` is `new PieceTreeTextBufferBuilder()`,
-	 * `acceptChunk`, `finish()` with `normalizeEOL` left at its default.
-	 *
-	 * The buffer rather than a `TextModel` because a model pulls in the editor's
-	 * browser-side graph, and the EOL is decided down here anyway — everything
-	 * `model.getEOL()` returns comes from this object.
-	 */
-	function textBuffer(source: string, defaultEOL: 1 | 2 = DefaultEndOfLine.LF) {
-		const builder = new PieceTreeTextBufferBuilder();
-		builder.acceptChunk(source);
-		return builder.finish().create(defaultEOL).textBuffer;
-	}
-
-	/** The buffer's own text, to show what normalization did to a fixture. */
-	function contents(buffer: ReturnType<typeof textBuffer>): string {
-		const snapshot = buffer.createSnapshot(false);
-		let text = '';
-		for (let chunk = snapshot.read(); chunk !== null; chunk = snapshot.read()) text += chunk;
-		return text;
-	}
-
-	const CRLF_DOCUMENT = '# Title\r\n\r\nA paragraph.\r\n\r\n- one\r\n- two\r\n';
-	const LF_DOCUMENT = '# Title\n\nA paragraph.\n\n- one\n- two\n';
-
-	test('the label is the document’s ending, not a constant', () => {
-		assert.equal(lineEndingLabel(textBuffer(CRLF_DOCUMENT)), 'CRLF');
-		assert.equal(lineEndingLabel(textBuffer(LF_DOCUMENT)), 'LF');
-	});
-
-	test('a mixed document is not mixed once it is open, and the label says which one won', () => {
-		// Monaco counts the endings and rewrites the WHOLE buffer to the majority
-		// before the model exists, so there is no third answer to give: after this
-		// the document really is uniform, and a save writes it out that way. The
-		// two assertions per fixture are one claim — the label matches the bytes.
-		const mostlyCrlf = textBuffer('a\r\nb\r\nc\n');
-		assert.equal(contents(mostlyCrlf), 'a\r\nb\r\nc\r\n');
-		assert.equal(lineEndingLabel(mostlyCrlf), 'CRLF');
-
-		const mostlyLf = textBuffer('a\nb\nc\r\n');
-		assert.equal(contents(mostlyLf), 'a\nb\nc\n');
-		assert.equal(lineEndingLabel(mostlyLf), 'LF');
-
-		// Half and half: Monaco requires a CR majority, so a tie goes to LF.
-		const tied = textBuffer('a\r\nb\n');
-		assert.equal(contents(tied), 'a\nb\n');
-		assert.equal(lineEndingLabel(tied), 'LF');
-	});
-
-	test('a document with no line break at all reports the ending Monaco would insert', () => {
-		// An empty untitled tab, or a one-line file. There is nothing to detect, so
-		// the model falls back to its `defaultEOL`, which the standalone services
-		// resolve per platform: CRLF on Windows, LF elsewhere. That is still the
-		// truth — it is what Enter inserts and what the save writes.
-		assert.equal(lineEndingLabel(textBuffer('one line, no break', DefaultEndOfLine.CRLF)), 'CRLF');
-		assert.equal(lineEndingLabel(textBuffer('', DefaultEndOfLine.LF)), 'LF');
-	});
-});
-
-describe('external change comparison', () => {
-	test('the diff view owns its models and never edits the document', () => {
-		// Handing it the tab's live model would put a second editor on a buffer
-		// Editor.svelte owns, and a read-only view of a document is not a place to
-		// change it from.
-		const disposed: string[] = [];
-		const created: { text: string; language: string }[] = [];
-		let options: Record<string, unknown> = {};
-		let shown: { original: unknown; modified: unknown } | null = null;
-		const fakeMonaco = {
-			editor: {
-				createModel: (text: string, language: string) => {
-					created.push({ text, language });
-					return { dispose: () => disposed.push(`model:${text}`) };
-				},
-				createDiffEditor: (_element: unknown, given: Record<string, unknown>) => {
-					options = given;
-					return {
-						setModel: (pair: { original: unknown; modified: unknown }) => { shown = pair; },
-						dispose: () => disposed.push('editor'),
-					};
-				},
-			},
-		} as unknown as Parameters<typeof openDiffView>[0];
-
-		const close = openDiffView(fakeMonaco, {} as HTMLElement, 'on disk', 'mine', 'markdown');
-		assert.deepEqual(created, [
-			{ text: 'on disk', language: 'markdown' },
-			{ text: 'mine', language: 'markdown' },
-		]);
-		assert.ok(shown, 'the diff editor was given its own two models');
-		assert.equal(options.readOnly, true);
-		assert.equal(options.originalEditable, false);
-		assert.deepEqual(disposed, []);
-
-		// Every model it creates is disposed, or opening the view repeatedly leaks
-		// one document's worth of text each time.
-		close();
-		assert.deepEqual(disposed.sort(), ['editor', 'model:mine', 'model:on disk']);
-	});
-});
-
 describe('open file mode', () => {
 	/* ------------------------------------------------- the stored preference */
 
@@ -571,7 +455,7 @@ describe('open file mode', () => {
 		assert.equal(resolveOpenFileMode(null, 'true'), 'editor');
 		assert.equal(resolveOpenFileMode(null, 'false'), 'preview');
 		// Never set it at all — the default, which is what that install did.
-		assert.equal(resolveOpenFileMode(null, null), 'preview');
+		assert.equal(resolveOpenFileMode(null, null), 'editor');
 	});
 
 	test('the old boolean stops being consulted once a choice exists', () => {

@@ -173,7 +173,8 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	);
 	const foldLayout: { current: FoldLayoutObservation | null } = { current: null };
 	
-	let editorPane = $state<{ 
+	type EditorPane = {
+		focus(): void;
 		syncScrollToPosition: (position: ScrollSyncPosition, options?: { cursorIntoView?: boolean }) => void;
 		setCursor: (line: number, column: number) => void;
 		scrollSyncPosition: () => ScrollSyncPosition | null;
@@ -193,7 +194,13 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		cutToClipboard: () => Promise<void>;
 		copyToClipboard: () => Promise<void>;
 		pasteFromClipboard: () => Promise<void>;
-	} | null>(null);
+	}
+	let editorPane = $state<EditorPane | null>(null);
+	let sourcePane = $state<EditorPane | null>(null);
+	let sourceFocused = $state(false);
+	function currentEditor(): EditorPane | null {
+		return sourceOnly || (isSplit && sourceFocused) ? sourcePane : editorPane;
+	}
 	// On by default, as in VS Code: a clean tab follows the file on disk.
 	let liveMode = $state(true);
 
@@ -213,11 +220,8 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	// focus is. The in-window shortcut remains the canonical route on every
 	// platform.
 	function triggerFindAction() {
-		const active = document.activeElement as Node | null;
-		const editorHasFocus = !!editorPaneEl && !!active && editorPaneEl.contains(active);
-		const previewVisible = hasPreviewPane;
-		if (editorHasFocus || !previewVisible) {
-			editorPane?.triggerFind?.();
+		if (hasEditorPane) {
+			currentEditor()?.triggerFind();
 		} else if (markdownBody) {
 			seedFindBar(findBar, window.getSelection(), markdownBody);
 			// Focus explicitly: `findOpen = true` is a no-op once open.
@@ -310,7 +314,9 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	 * preview but not the editor beside it (#744).
 	 */
 	let hasEditorPane = $derived(isEditing || isSplit);
-	let hasPreviewPane = $derived(previewPaneShown(isEditing, isSplit));
+	let sourceOnly = $derived(isEditing && !isSplit && activeTab?.sourceOnly === true);
+	let showSource = $derived(isSplit || sourceOnly);
+	let hasPreviewPane = $derived(!showSource && previewPaneShown(isEditing, isSplit));
 	let frontMatterInfo = $derived(parseFrontMatter(rawContent));
 
 	let currentFile = $derived(tabManager.activeTab?.path ?? '');
@@ -374,7 +380,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	 */
 	let editorToolbarHeight = $state(0);
 	let paneTopChrome = $derived(
-		hasEditorPane && settings.showEditorToolbar ? editorToolbarHeight : 0,
+		hasEditorPane && !sourceOnly && editorLanguage === 'markdown' && settings.showEditorToolbar ? editorToolbarHeight : 0,
 	);
 	let previewAppearance = $derived(previewAppearanceFrom(settings));
 	// Content zoom by font size, as Zed and JetBrains do it: nothing on screen carries a CSS zoom (#1071).
@@ -618,7 +624,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	let restoredFolder: string | null = null;
 
 	const transferOptions = createTransferOptions({
-		editorPane: () => editorPane,
+		editorPane: currentEditor,
 		windowStateJson,
 		isCloseWalkActive: () => windowExit.isCloseWalkActive(),
 		isDisposed: () => isDisposed,
@@ -677,7 +683,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	// (focus loss, hide, close, quit).
 	$effect(() => {
 		for (const tab of tabManager.tabs) {
-			void [tab.id, tab.path, tab.title, tab.isEditing, tab.isSplit, tab.splitRatio, tab.isScrollSynced];
+			void [tab.id, tab.path, tab.title, tab.isEditing, tab.isSplit, tab.sourceOnly, tab.splitRatio, tab.isScrollSynced];
 		}
 		const tag = tabManager.windowTag;
 		void [tabManager.activeTabId, tag?.name, tag?.color, tag?.pinned, folderManager.root];
@@ -798,7 +804,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		addToast,
 		t,
 		get editorPane() {
-			return editorPane;
+			return currentEditor();
 		},
 		get markdownBody() {
 			return markdownBody;
@@ -826,6 +832,25 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		toggleSplitView,
 		setViewMode,
 	} = viewMode;
+	async function chooseMode(mode: Parameters<typeof setViewMode>[0]) {
+		const id = tabManager.activeTabId;
+		await setViewMode(mode);
+		await tick();
+		if (id !== tabManager.activeTabId) return;
+		if (mode === 'source') sourcePane?.focus();
+		if (mode === 'edit' || mode === 'split') editorPane?.focus();
+	}
+	async function switchEditorSurface() {
+		if (isSplit) {
+			(currentEditor() === sourcePane ? editorPane : sourcePane)?.focus();
+		} else if (isEditing) {
+			await chooseMode(sourceOnly ? 'edit' : 'source');
+		} else {
+			await toggleEditView();
+		}
+	}
+
+
 
 	// Persisted through Rust, not localStorage: setItem is an async message
 	// to the WebKit storage process that dies in transit when the last
@@ -901,7 +926,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	let panesShown: { tabId: string | null; shown: PanesShown } | null = null;
 
 	$effect.pre(() => {
-		const now = { tabId: tabManager.activeTabId, shown: { editor: hasEditorPane, viewer: hasPreviewPane } };
+		const now = { tabId: tabManager.activeTabId, shown: { editor: hasEditorPane && !sourceOnly, viewer: showSource || hasPreviewPane } };
 		untrack(() => {
 			const last = panesShown;
 			panesShown = now;
@@ -1225,7 +1250,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	});
 
 	$effect(() => {
-		if (markdownBody && !isEditing && tabManager.activeTabId) {
+		if (markdownBody && !isEditing && !isSplit && tabManager.activeTabId) {
 			tick().then(() => {
 				markdownBody?.focus({ preventScroll: true });
 			});
@@ -1253,6 +1278,10 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	}
 
 	function scrollPreviewToSyncPosition(position: ScrollSyncPosition) {
+		if (isSplit && sourcePane) {
+			sourcePane.syncScrollToPosition(position);
+			return;
+		}
 		if (!markdownBody) return;
 		const targetScroll = getPreviewScrollTopForSyncPosition(
 			markdownBody,
@@ -1996,25 +2025,18 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	/**
 	 * Cut, Copy and Paste for the editor pane.
 	 *
-	 * Markpad draws this rather than letting Monaco draw its own, because
-	 * Monaco's Paste reads the clipboard through the webview and cannot work
-	 * here (#207) — see `contextmenu: false` in Editor.svelte for the whole of
-	 * that reasoning. Each item runs the same function its keyboard shortcut
-	 * runs, so there is one implementation per operation rather than one per
-	 * entry point.
-	 *
-	 * Cut and Copy are always enabled: with nothing selected they take the
-	 * current line, which is what ⌘X and ⌘C already do here.
 	 */
 	function showEditorContextMenu(e: MouseEvent) {
-		if (!editorPane) return;
+		const source = !!(e.target as HTMLElement)?.closest('.source-pane');
+		const pane = source ? sourcePane : editorPane;
+		if (!pane) return;
 		e.preventDefault();
 
 		docContextMenu = {
 			show: true,
 			x: e.clientX,
 			y: e.clientY,
-			items: editorContextMenuItems(() => editorPane, settings.language, settings.osType),
+			items: editorContextMenuItems(() => pane, settings.language, settings.osType, source),
 		};
 	}
 
@@ -2272,7 +2294,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		appExit,
 		toggleSplitView,
 		toggleLiveMode,
-		toggleEditView,
+		toggleEditView: switchEditorSurface,
 		saveContentAs,
 		saveActiveTab,
 		handleUndoCloseTab,
@@ -2306,7 +2328,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 			language: settings.language,
 			viewMode: activeTab ? viewModeOf(activeTab) : null,
 			liveMode,
-			hasEditorPane,
+			hasEditorPane: hasEditorPane && !sourceOnly,
 			showToc: settings.showToc,
 			showTabs: settings.showTabs,
 			showEditorToolbar: settings.showEditorToolbar,
@@ -2322,7 +2344,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		const context = keyContext();
 		if (context.mode !== 'app' || context.dialogOpen) return;
 		if ('viewer' in action) return runViewerCommand(action.viewer);
-		if ('editor' in action) return editorPane?.runEditorAction(action.editor);
+		if ('editor' in action) return (editorPane ?? sourcePane)?.runEditorAction(action.editor);
 		switch (action.app) {
 			case 'check-updates':
 				return updateStore.openDialog();
@@ -2349,6 +2371,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	}
 
 	function handleKeyDown(e: KeyboardEvent) {
+		if (e.defaultPrevented || e.isComposing || e.keyCode === 229) return;
 		dispatchViewerKey(e, keyContext(), runViewerCommand);
 	}
 
@@ -2660,22 +2683,21 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 							const rect = el.getBoundingClientRect();
 							return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
 						};
-						if (editorPaneEl) {
-							if (contains(editorPaneEl)) {
-								dragTarget = 'editor';
-								if (editorPane) editorPane.updateDragCaret(x, y);
-							} else {
-								dragTarget = viewerPaneEl && contains(viewerPaneEl) ? 'preview' : null;
-								if (editorPane) editorPane.hideDragCaret();
-							}
-						}
+						const overLeft = editorPane && editorPaneEl && contains(editorPaneEl);
+						const overRight = viewerPaneEl && contains(viewerPaneEl);
+						dragTarget = overLeft ? 'editor' : overRight ? 'preview' : null;
+						if (overLeft) editorPane?.updateDragCaret(x,y);
+						else editorPane?.hideDragCaret();
+						if (overRight && sourcePane) sourcePane.updateDragCaret(x,y);
+						else sourcePane?.hideDragCaret();
 					} else if (event.payload.type === 'drop') {
 						const { x, y } = event.payload.position;
 						const paths = event.payload.paths;
-						const currentEditor = editorPane;
-						if (currentEditor) currentEditor.hideDragCaret();
-						handleDrop(paths, dragTarget, !!currentEditor, {
-							insert: (path) => currentEditor?.handleDroppedFile(path, x, y),
+						const dropEditor = dragTarget === 'preview' ? sourcePane : editorPane;
+						editorPane?.hideDragCaret();
+						sourcePane?.hideDragCaret();
+						handleDrop(paths, dropEditor && dragTarget ? 'editor' : dragTarget, !!dropEditor, {
+							insert: (path) => dropEditor?.handleDroppedFile(path, x, y),
 							open: (path) => loadMarkdown(path),
 							unsupported: reportUnsupportedDrop,
 						});
@@ -2685,7 +2707,8 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 					} else if (event.payload.type === 'leave') {
 						isDragging = false;
 						dragTarget = null;
-						if (editorPane) editorPane.hideDragCaret();
+						editorPane?.hideDragCaret();
+						sourcePane?.hideDragCaret();
 					}
 				}),
 			);
@@ -2755,8 +2778,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		ontoggleHome={toggleHome}
 		ononpenFileLocation={openFileLocation}
 		ontoggleLiveMode={toggleLiveMode}
-		onsetViewMode={setViewMode}
-		onswapPanes={() => settings.toggleSplitEditorSide()}
+		onsetViewMode={chooseMode}
 		{isEditing}
 		ontabclick={() => (showHome = false)}
 		onresetZoom={() => settings.resetZoom()}
@@ -2797,8 +2819,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		ononpenFileLocation={openFileLocation}
 		ontoggleLiveMode={toggleLiveMode}
 		ontoggleEditorToolbar={() => { settings.showEditorToolbar = !settings.showEditorToolbar; }}
-		onsetViewMode={setViewMode}
-		onswapPanes={() => settings.toggleSplitEditorSide()}
+		onsetViewMode={chooseMode}
 		{isEditing}
 		ontabclick={() => (showHome = false)}
 		onresetZoom={() => settings.resetZoom()}
@@ -2879,7 +2900,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 				<div class="layout-container" 
 					bind:this={layoutContainerEl}
 					class:split={isSplit} 
-					class:editor-on-right={isSplit && settings.splitEditorSide === 'right'} 
+					class:source-only={sourceOnly}
 					class:editing={isEditing} 
 					class:has-pinned-toc={isMarkdown && settings.pinnedToc && settings.showToc}
 					class:toc-on-left={isMarkdown && settings.tocSide === 'left'}
@@ -2887,9 +2908,11 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 					class:toc-resizing={isTocResizing}
 					style="--toc-width: {settings.tocWidth}px; --pane-top-chrome: {paneTopChrome}px;">
 					<!-- Editor Pane -->
-					<div bind:this={editorPaneEl} class="pane editor-pane" style:flex={isSplit ? tabManager.activeTab.splitRatio : null}>
-						{#if hasEditorPane}
-							{#if settings.showEditorToolbar}
+					<div bind:this={editorPaneEl} class="pane editor-pane" onfocusin={() => sourceFocused = false}
+						class:has-toc-toggle={isMarkdown && !settings.showToc && (!isSplit || settings.tocSide === 'left')}
+						style:flex={isSplit ? tabManager.activeTab.splitRatio : null}>
+						{#if hasEditorPane && !sourceOnly}
+							{#if settings.showEditorToolbar && editorLanguage === 'markdown'}
 								<div bind:clientHeight={editorToolbarHeight} transition:slide={{ duration: 150 }}>
 									<EditorToolbar
 										modifier={modifierFor(settings.osType)}
@@ -2913,17 +2936,20 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 										onhideTooltip={() => (tooltip.show = false)} />
 								</div>
 							{/if}
-							<Editor
-								bind:this={editorPane}
-								value={tabManager.activeTab.rawContent}
-								readOnly={editorReadOnly(tabManager.activeTab)}
-								language={editorLanguage}
-								theme={settings.theme}
-								zoomLevel={settings.zoomLevel}
-								oncommand={runViewerCommand}
-								onscrollsync={handleEditorScrollSync}
-								oncursor={handleEditorCursor}
-								sharedCursor={settings.previewCursor ? viewMode.activeCursor : null} />
+							{#key tabManager.activeTab.id}
+								<Editor
+									tabId={tabManager.activeTab.id}
+									onswitchmode={switchEditorSurface}
+									onerror={message => addToast(message, 'error')}
+									bind:this={editorPane}
+									value={tabManager.activeTab.rawContent}
+									readOnly={editorReadOnly(tabManager.activeTab)}
+									language={editorLanguage}
+									zoomLevel={settings.zoomLevel}
+									onscrollsync={handleEditorScrollSync}
+									oncursor={handleEditorCursor}
+									sharedCursor={settings.previewCursor ? viewMode.activeCursor : null} />
+							{/key}
 						{/if}
 					</div>
 
@@ -2938,17 +2964,42 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 					<div 
 						bind:this={viewerPaneEl} 
 						bind:clientWidth={viewerWidth}
-						class="pane viewer-pane" 
+						class="pane viewer-pane" class:source-pane={showSource} onfocusin={() => { if (showSource) sourceFocused = true; }}
 						style:flex={isSplit ? 1 - tabManager.activeTab.splitRatio : null}>
 
+						{#if showSource}
+							{#if isSplit}
+								<div class="source-pane-heading">{t('menu.sourceEditor', settings.language)}</div>
+							{/if}
+							{#key tabManager.activeTab.id}
+								<Editor
+									sourceMode
+									focusOnMount={sourceOnly}
+									tabId={tabManager.activeTab.id}
+									bind:this={sourcePane}
+									value={tabManager.activeTab.rawContent}
+									readOnly={editorReadOnly(tabManager.activeTab)}
+									language={editorLanguage}
+									zoomLevel={settings.zoomLevel}
+									sharedCursor={viewMode.activeCursor}
+									onswitchmode={switchEditorSurface}
+									onerror={message => addToast(message, 'error')}
+									oncursor={(line, column) => { if (sourceOnly || sourceFocused) handleEditorCursor(line, column); }}
+									onscrollsync={position => {
+										if (isSplit && isScrollSynced) editorPane?.syncScrollToPosition(position);
+									}} />
+							{/key}
+						{/if}
+						{#if !showSource}
 						<FindBar
 							bind:this={findBar}
 							bind:open={findOpen}
 							contentRoot={previewBlocks}
 							onunfold={(key: string) => revealFold(foldHost, key)}
 							language={settings.language} />
+						{/if}
 
-							<div class="viewer-content">
+							<div class="viewer-content" class:preview-hidden={showSource} inert={showSource}>
 								<article
 									bind:this={markdownBody}
 									contenteditable="false"
@@ -3169,12 +3220,12 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 											// margin harming nothing, and closing it would take away a
 											// behaviour that was already fine.
 											if (tocAutoCollapses(() => isOverhanging, settings.pinnedToc)) settings.showToc = false;
-											if (hasEditorPane && editorPane) {
+											if (hasEditorPane && currentEditor()) {
 												// Same renderer-to-buffer shift as the context menu: the
 												// outline reads `data-sourcepos` too, and has been landing
 												// short by the front matter's height for as long as both
 												// have existed.
-												editorPane.revealHeader(
+												currentEditor()?.revealHeader(
 													sourceLine === null ? null : lineCoords.toBufferLine(sourceLine),
 													text,
 												);
@@ -3302,18 +3353,18 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 
 	{#if isDragging}
 		<div class="drag-overlay" role="presentation">
-			<div class="drag-zones" class:split={isSplit} class:editor-on-right={isSplit && settings.splitEditorSide === 'right'}>
-				{#if hasEditorPane}
+			<div class="drag-zones" class:split={isSplit}>
+				{#if hasEditorPane && !sourceOnly}
 					<div class="drag-zone editor-zone" class:active={dragTarget === 'editor'}>
 								<div class="drag-message">
 									<span>{dropZoneLabel(dragPaths, 'editor') === 'embed' ? t('dragAndDrop.embed', settings.language) : t('dragAndDrop.open', settings.language)}</span>
 								</div>
 							</div>
 				{/if}
-				{#if isSplit || !isEditing}
+				{#if showSource || !isEditing}
 					<div class="drag-zone viewer-zone" class:active={dragTarget === 'preview'}>
 								<div class="drag-message">
-									<span>{t('dragAndDrop.open', settings.language)}</span>
+									<span>{t(showSource && dropZoneLabel(dragPaths, 'editor') === 'embed' ? 'dragAndDrop.embed' : 'dragAndDrop.open', settings.language)}</span>
 								</div>
 							</div>
 				{/if}
@@ -3778,18 +3829,6 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		overflow: hidden;
 	}
 
-	/**
-	 * Swapping the panes reverses the row rather than reordering the markup
-	 * (#184). The editor keeps its place in the DOM, so focus order, the drag
-	 * hit test — which reads each pane's own `getBoundingClientRect()` — and
-	 * every `.editor-pane` / `.viewer-pane` rule carry over untouched. The
-	 * padding that a pinned outline adds is on the container and is unaffected
-	 * by the direction, so the outline stays on the side it is pinned to.
-	 */
-	.layout-container.editor-on-right,
-	.drag-zones.editor-on-right {
-		flex-direction: row-reverse;
-	}
 
 	.pane {
 		display: flex;
@@ -3832,6 +3871,23 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		flex: 0 !important;
 		opacity: 0;
 	}
+
+	.viewer-content.preview-hidden { display: none; }
+	.layout-container.source-only .editor-pane { display: none; }
+	.layout-container.source-only:not(.split).editing .source-pane { width: 100%; opacity: 1; flex: 1 !important; }
+	.source-pane-heading {
+		flex: none;
+		height: var(--pane-top-chrome, 0px);
+		min-height: 28px;
+		display: flex;
+		align-items: center;
+		padding-inline: 16px;
+		font-size: 12px;
+		color: var(--color-fg-muted);
+		border-bottom: 1px solid var(--color-border-muted);
+	}
+	.toc-on-right .source-pane { --editor-inset-right: 44px; }
+	.source-only.toc-on-left .source-pane { --editor-inset-left: 44px; }
 
 	.split-bar {
 		width: 4px;
@@ -3969,6 +4025,10 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	.layout-container.editing.has-pinned-toc.toc-on-right .editor-pane {
 		padding-right: 40px;
 	}
+
+	/* 접힌 목차 버튼(8px + 28px)과 편집할 본문 사이에 클릭할 여백을 둔다. */
+	.toc-on-left .editor-pane.has-toc-toggle { --editor-inset-left: 44px; }
+	.toc-on-right .editor-pane.has-toc-toggle { --editor-inset-right: 44px; }
 
 	.toc-overlay-wrapper.on-right {
 		left: auto;

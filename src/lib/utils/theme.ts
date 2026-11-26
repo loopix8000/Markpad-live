@@ -1,4 +1,3 @@
-import { semanticTokenRules, VSCODE_THEME_NAME } from './editorTheme.js';
 
 // Values taken from an imported VS Code theme end up concatenated into a global
 // `<style>` block. Anything that is not a colour literal could close the rule and
@@ -118,48 +117,6 @@ export function markdownKindColors(tokenColors: unknown): Map<string, string> {
 }
 
 /**
- * Every rule an imported theme's editor gets, semantic layer included.
- *
- * The layer needs a rule for every kind it emits or it erases the theme. A
- * semantic token whose type the theme does not name resolves to the theme's
- * *root* rule, whose foreground is a real colour id rather than "none"
- * (`semanticTokensProviderStyling.js`, the `if (tokenStyle.foreground)`
- * branch), and `sparseTokensStore` then masks the grammar's colour out and
- * paints that plain default over it. So the app's own rules go in as a base.
- *
- * The base is *rewritten* rather than layered under, and that is the point.
- * Monaco has no notion of one rule set overriding another: rules are sorted by
- * name and merged into a trie, where a child node is cloned from its parent at
- * the moment it is created and never revisited. Between two rules of the same
- * name, array order decides and a later theme rule wins. Between `strike` and
- * `strike.marker` it is the trie shape that decides — the longer name is
- * inserted last, creates the child, and overwrites it — and which set the rule
- * came from does not enter into it. Layering by array order therefore holds for
- * exactly as long as the two sets happen to name the same tokens, and inverts
- * silently the moment the base names a longer one.
- *
- * Resolving the theme's colour into the base here means the base's shape stops
- * mattering: whatever names it declares for a construct, marker or content or
- * something not invented yet, all of them carry the theme's colour before
- * Monaco ever sees them.
- *
- * Font styles stay the base's. `strike` has to be struck through and `insert`
- * underlined whatever colour they take, and a theme that does spell out a style
- * still applies it through its own rule below.
- */
-export function importedThemeRules(tokenColors: unknown, isDark: boolean): MonacoTokenRule[] {
-	const themeRules = monacoTokenRules(tokenColors);
-	const byKind = kindColorsOf(themeRules);
-
-	const base = semanticTokenRules(isDark ? 'dark' : 'light').map((rule) => {
-		const foreground = byKind.get(rule.token.split('.')[0]);
-		return foreground ? { ...rule, foreground } : rule;
-	});
-
-	return [...base, ...themeRules];
-}
-
-/**
  * The Monaco token names a TextMate scope has to be renamed to before it can
  * colour anything in the editor.
  *
@@ -266,7 +223,7 @@ export function monacoTokenRules(tokenColors: unknown): MonacoTokenRule[] {
 	return rules;
 }
 
-export async function parseAndApplyVscodeTheme(themeJsonStr: string, name: string, isCurrent: () => boolean = () => true) {
+function parseAndApplyVscodeTheme(themeJsonStr: string) {
 	const cleanJson = themeJsonStr.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => (g ? '' : m));
 	let theme;
 	try {
@@ -357,36 +314,6 @@ export async function parseAndApplyVscodeTheme(themeJsonStr: string, name: strin
 		document.documentElement.style.setProperty('--color-whitespace', wsColor);
 	}
 
-	try {
-		// Imported lazily: Monaco touches `window` at module scope, which would make
-		// this module unloadable outside a browser (and it is already bundled by the
-		// editor, so the dynamic import resolves from cache).
-		const monaco = await import('monaco-editor');
-		// The first import loads Monaco, which is slow enough for the reader to
-		// have picked another theme meanwhile; `setTheme` is global and would
-		// repaint the editor with this one.
-		if (monaco && isCurrent()) {
-			const rules = importedThemeRules(theme.tokenColors, isDark);
-
-			// Monaco only understands hex colours here; anything else makes
-			// `defineTheme` throw and drops the whole editor theme.
-			const monacoColors: Record<string, string> = {};
-			for (const [key, value] of Object.entries(colors)) {
-				if (isHexColor(value)) monacoColors[key] = value;
-			}
-
-			monaco.editor.defineTheme(VSCODE_THEME_NAME, {
-				base: isDark ? 'vs-dark' : 'vs',
-				inherit: true,
-				rules: rules,
-				colors: monacoColors,
-			});
-
-			monaco.editor.setTheme(VSCODE_THEME_NAME);
-		}
-	} catch (e) {
-		console.error('Monaco theme application failed:', e);
-	}
 }
 
 /** Bumped by every theme application, so a load still in flight can tell it lost. */
@@ -395,17 +322,14 @@ let latestThemeLoad = 0;
 /**
  * Reads and applies a VS Code theme, unless another theme is applied first.
  *
- * Both awaits (the read, and Monaco's first import inside the parse) leave room
- * for the reader to choose again; a load that finishes after that must not paint
- * over the newer choice, nor report a failure that would reset it. Resolves to
- * whether this load is still the one on screen; rejects only if it is.
+ * 파일을 읽는 동안 다른 테마를 선택하면 이전 읽기 결과를 버린다.
  */
 export async function loadVscodeTheme(name: string, read: (name: string) => Promise<string>): Promise<boolean> {
 	const load = ++latestThemeLoad;
 	const isCurrent = () => load === latestThemeLoad;
 	try {
 		const json = await read(name);
-		if (isCurrent()) await parseAndApplyVscodeTheme(json, name, isCurrent);
+		if (isCurrent()) parseAndApplyVscodeTheme(json);
 	} catch (e) {
 		if (isCurrent()) throw e;
 	}

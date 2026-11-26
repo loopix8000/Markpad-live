@@ -215,7 +215,7 @@ const CONVENTIONS = {
 		},
 	},
 	'editor-derives-the-anchor-once': {
-		files: [EDITOR, 'src/lib/utils/editorDocument.svelte.ts'],
+		files: [EDITOR],
 		ban: {
 			"Identifier[name='tabAnchorForEditorTopLine']":
 				'The editor crosses from buffer to renderer numbering in editorReadingPosition (utils/editorPosition.ts) only.',
@@ -226,15 +226,6 @@ const CONVENTIONS = {
 	},
 
 	// --------------------------------------------------------------------- editor
-	'one-update-options-effect': {
-		files: [EDITOR],
-		atMost: {
-			"CallExpression[callee.object.name='editor'][callee.property.name='updateOptions']": [
-				1,
-				'Two effects writing the same Monaco options (fontSize with and without zoom) made the winner depend on effect order.',
-			],
-		},
-	},
 	'settings-os-type-is-written-by-the-store': {
 		ignores: ['src/lib/stores/settings.svelte.ts'],
 		ban: {
@@ -246,32 +237,16 @@ const CONVENTIONS = {
 		files: [EDITOR],
 		ban: {
 			[command('clipboardWriteText')]:
-				'Cut and copy write the clipboard in utils/editorClipboard.ts, so they cannot drift apart and the whole-line rule is implemented once.',
+				'Cut and copy write the clipboard in live/clipboard.ts, so they cannot drift apart and the whole-line rule is implemented once.',
 		},
 	},
 	'one-cut-one-copy': {
-		files: ['src/lib/utils/editorClipboard.ts'],
+		files: ['src/lib/live/clipboard.ts'],
 		atMost: {
 			[command('clipboardWriteText')]: [
 				2,
 				'copyToClipboard and cutToClipboard are the editor\'s two clipboard writers; a third derives the text again.',
 			],
-		},
-	},
-	'monaco-theme-writers': {
-		ignores: [EDITOR, 'src/lib/utils/mountEditor.ts', 'src/lib/utils/theme.ts'],
-		ban: {
-			"CallExpression[callee.object.property.name='editor'][callee.property.name='setTheme']":
-				'The editor pane, its mount and the theme importer (which defines `vscode-custom`) are the only Monaco theme writers.',
-		},
-	},
-	'an-edit-is-its-own-undo-step': {
-		files: [EDITOR, 'src/lib/utils/editorClipboard.ts'],
-		requireEarlier: {
-			call: 'executeEdits',
-			earlier: 'pushUndoStop',
-			message:
-				'executeEdits appends to the undo element typing left open, so Cmd+Z takes the typing too; call editor.pushUndoStop() before it.',
 		},
 	},
 	'on-mount-is-synchronous': {
@@ -288,14 +263,8 @@ const CONVENTIONS = {
 				'`editor` is a plain let assigned after an await; an effect gated on it alone runs once against nothing and never again.',
 		},
 	},
-	'monaco-is-loaded-on-demand': {
-		ban: {
-			"ImportDeclaration[importKind!='type'][source.value=/^monaco-(editor|vim)($|\\/)/]:not([source.value=/[?]worker$/]), ExportNamedDeclaration[exportKind!='type'][source.value=/^monaco-(editor|vim)($|\\/)/], ExportAllDeclaration[exportKind!='type'][source.value=/^monaco-(editor|vim)($|\\/)/]":
-				'Monaco is most of the startup JavaScript and only the editor needs it: load it with `await import()` (Editor.svelte), or `import type`.',
-		},
-	},
 	'one-image-link-writer': {
-		files: [EDITOR, 'src/lib/utils/editorClipboard.ts'],
+		files: [EDITOR, 'src/lib/live/clipboard.ts'],
 		ban: {
 			"Literal[value=/%20/], TemplateElement[value.raw=/%20/]":
 				'A hand-rolled space escape is back; imageEmbed (utils/imageEmbed.ts) escapes the destination.',
@@ -306,13 +275,6 @@ const CONVENTIONS = {
 		ban: {
 			"LogicalExpression[operator='||'][left.object.name='settings'][left.property.name='imageDirectory'], LogicalExpression[operator='||'][right.name='DEFAULT_IMAGE_DIRECTORY'], LogicalExpression[operator='||'][right.value='img']":
 				'Paste, drop and the path completion read the image directory through one resolver (utils/imageEmbed.ts), so `${filename}` expands at all three.',
-		},
-	},
-	'delete-line-stays-bound': {
-		files: [EDITOR],
-		ban: {
-			"Literal[value='-editor.action.deleteLines']":
-				'Mod+Shift+K deletes a line, as in Monaco (#821); unbinding it took a key users asked for back.',
 		},
 	},
 
@@ -517,7 +479,7 @@ const CONVENTIONS = {
 
 	// -------------------------------------------------------------------- settings
 	'font-preferences-are-quoted': {
-		files: [VIEWER, 'src/lib/utils/editorOptions.ts'],
+		files: [VIEWER, EDITOR],
 		ban: {
 			"SvelteLiteral[value=/(font-family|--code-font):\\s*$/] + SvelteMustacheTag[expression.object.name='settings']":
 				'A font preference reaches CSS through fontFamilyValue (utils/fontFamily.ts), quoted.',

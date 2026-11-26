@@ -150,6 +150,11 @@ export default {
         modShiftEnter: '表格：上方加一列 · 其他：上方加空行'
     },
     menu: {
+        copyDiagramAsImage: '將圖表複製為圖片',
+        liveEditor: '即時編輯',
+        sourceEditor: '原始碼編輯',
+        image: '圖片',
+        markdownSource: '編輯區塊的 Markdown 原文',
         toggleFullScreen: '切換全螢幕',
         about: '關於 Markpad Live',
         services: '服務',
@@ -270,6 +275,8 @@ export default {
         wholeWord: '比對完整單字'
     },
     toast: {
+        diagramCopied: '已將圖表複製為圖片',
+        failedToCopyDiagram: '無法複製圖表',
         recoveryFailed: '無法保留未儲存的變更。',
         imageSavedSuccessfully: '圖片已成功儲存',
         failedToSaveImage: '圖片儲存失敗',
@@ -358,6 +365,10 @@ export default {
         openFile: '開啟檔案',
     },
     editor: {
+        runCommand: '執行命令',
+        apply: '套用',
+        selectTableSize: '選擇表格大小',
+        tableSize: '{{columns}} 欄 × {{rows}} 列',
         status: {
             lineCol: '第 {{line}} 行，第 {{col}} 欄',
             selected: '已選取 {{count}} 個字元',
@@ -374,6 +385,7 @@ export default {
         addTagTo: '新增 {{field}} 標籤'
     },
     tooltip: {
+        hideEditorToolbar: '隱藏編輯器工具列',
         menu: '選單',
         more: '更多',
         back: '上一頁',

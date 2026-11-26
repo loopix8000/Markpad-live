@@ -593,7 +593,8 @@ export function createDocumentSession(options: DocumentSessionOptions) {
 					// bound to the 5MB preview slice is one keystroke away from
 					// auto-saving it back over the whole file.
 					const openFileMode = loadOptions.openFileMode ?? settings.openFileMode;
-					tab.isEditing = openFileMode === 'editor';
+					tab.isEditing = openFileMode === 'editor' || openFileMode === 'source';
+					tab.sourceOnly = openFileMode === 'source';
 					if (openFileMode === 'split') tabManager.setSplitEnabled(tab.id, true);
 				}
 				const initialIsEditing = tab?.isEditing ?? false;
@@ -1094,7 +1095,8 @@ export function createDocumentSession(options: DocumentSessionOptions) {
 		const id = tabManager.addTab(filePath, '', pathKey, false);
 		const tab = tabManager.tabs.find((item) => item.id === id);
 		if (tab) {
-			tab.isEditing = settings.openFileMode === 'editor';
+			tab.isEditing = settings.openFileMode === 'editor' || settings.openFileMode === 'source';
+			tab.sourceOnly = settings.openFileMode === 'source';
 			if (settings.openFileMode === 'split') tabManager.setSplitEnabled(id, true);
 			if (anchor) tab.pendingAnchor = anchor;
 			tab.recordRecent = true;
@@ -1118,7 +1120,8 @@ export function createDocumentSession(options: DocumentSessionOptions) {
 			const openFileMode = !hasMarkdownLinkExtension(filePath)
 				? 'editor'
 				: (mode ?? (settings.newFileDefaultMode ? 'editor' : 'preview'));
-			tab.isEditing = openFileMode === 'editor';
+			tab.isEditing = openFileMode === 'editor' || openFileMode === 'source';
+			tab.sourceOnly = openFileMode === 'source';
 			if (openFileMode === 'split') tabManager.setSplitEnabled(tab.id, true);
 		}
 		await options.afterLoad();

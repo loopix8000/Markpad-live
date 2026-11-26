@@ -7,7 +7,7 @@ import { buildTransferredTab, type TransferableTab } from '../utils/tabTransfer.
 import { basename, canonicalizePath, isSameFilePath } from '../utils/pathIdentity.js';
 import { asRendererLine, type RendererLine } from '../utils/lineCoordinates.js';
 import { outgoingTabAnchorLine } from '../utils/editorPosition.js';
-import { retainTabModels } from '../utils/tabModels.js';
+import { retainLiveEditors } from '../live/tabs.js';
 import {
 	canGoBackInHistory,
 	canGoForwardInHistory,
@@ -122,6 +122,7 @@ export interface Tab {
 	 */
 	readonly isDirty: boolean;
 	isEditing: boolean;
+	sourceOnly?: boolean;
 	/**
 	 * Back/forward navigation, not undo — despite sitting next to three text
 	 * buffers. The entries are file PATHS this tab has shown (see
@@ -349,7 +350,7 @@ type TabFields = Pick<Tab, 'id' | 'path' | 'title' | 'history' | 'historyIndex' 
 	Partial<
 		Pick<
 			Tab,
-			'rawContent' | 'isEditing' | 'scrollTop' | 'scrollPercentage' | 'anchorLine' | 'isSplit' | 'splitRatio' | 'isScrollSynced' | 'pathKey'
+			'rawContent' | 'isEditing' | 'sourceOnly' | 'scrollTop' | 'scrollPercentage' | 'anchorLine' | 'isSplit' | 'splitRatio' | 'isScrollSynced' | 'pathKey'
 		>
 	>;
 
@@ -476,6 +477,7 @@ class TabManager {
 					path: t.path,
 					title: t.title,
 					isEditing: t.isEditing,
+					...(t.sourceOnly && { sourceOnly: true }),
 					isSplit: t.isSplit,
 					splitRatio: t.splitRatio,
 					isScrollSynced: t.isScrollSynced,
@@ -533,6 +535,7 @@ class TabManager {
 						...createFileHistory(saved.path),
 						scrollTop: typeof saved.scrollTop === 'number' ? saved.scrollTop : 0,
 						isEditing: saved.isEditing === true,
+						sourceOnly: saved.sourceOnly === true,
 						scrollPercentage: typeof saved.scrollPercentage === 'number' ? saved.scrollPercentage : 0,
 						// The brand is phantom, so nothing of it survives JSON — which is
 						// exactly why the read side has to re-declare what came back.
@@ -555,7 +558,7 @@ class TabManager {
 				: restored[0]?.id ?? null;
 			// Every tab that was open is gone, replaced wholesale — the one tab
 			// removal in this file that never calls `closeTab`.
-			this.releaseModelsOfRemovedTabs();
+			this.releaseEditorsOfRemovedTabs();
 			// Snapshots store paths as they were typed, and the restore reads
 			// each file directly rather than through `loadMarkdown`, so nothing
 			// else would ever resolve these. Without this a restored window sits
@@ -758,30 +761,9 @@ class TabManager {
 		return tab.id;
 	}
 
-	/**
-	 * Release the Monaco models of tabs that no longer exist.
-	 *
-	 * Called after every removal rather than paired with each one, because the
-	 * question it asks — "which models have no tab?" — is answered from the tab
-	 * list, so a route that removes a tab in some way not listed below is still
-	 * covered. A model that is dropped without `dispose()` is not collected:
-	 * Monaco registers it with the model service, and its buffer, tokenization
-	 * state and worker-side copy stay alive for the life of the window. See
-	 * `utils/tabModels.ts`.
-	 *
-	 * The three call sites are the three places a tab stops existing: `closeTab`
-	 * (the close button, ⌘W, close-others/close-to-the-right, a clean tab losing
-	 * its path in `claimPath`, a tab moved to another window, a rolled-back
-	 * transfer), `closeAll`, and `restoreState`, which replaces the whole array.
-	 *
-	 * Whether the model being disposed is the one on screen does not matter
-	 * here: Monaco's editor detaches itself from a model that is disposed
-	 * (`_attachModel` registers `model.onWillDispose(() => this.setModel(null))`),
-	 * and `Editor.svelte` attaches the newly active tab's model in the same
-	 * flush.
-	 */
-	private releaseModelsOfRemovedTabs() {
-		retainTabModels(this.tabs.map((tab) => tab.id));
+	// 닫힌 탭의 편집 화면과 실행 취소 기록을 함께 정리한다.
+	private releaseEditorsOfRemovedTabs() {
+		retainLiveEditors(this.tabs.map((tab) => tab.id));
 	}
 
 	closeTab(id: string) {
@@ -798,13 +780,13 @@ class TabManager {
 			this.recentlyClosed.push(tab.path);
 		}
 		this.tabs.splice(index, 1);
-		this.releaseModelsOfRemovedTabs();
+		this.releaseEditorsOfRemovedTabs();
 	}
 
 	closeAll() {
 		this.tabs = [];
 		this.activeTabId = null;
-		this.releaseModelsOfRemovedTabs();
+		this.releaseEditorsOfRemovedTabs();
 	}
 
 	flashTab(id: string) {

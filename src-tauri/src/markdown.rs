@@ -659,23 +659,6 @@ pub(crate) fn wikilink_parts<'a>(source: &str, caps: &Captures<'a>) -> Option<Wi
     })
 }
 
-/// Byte ranges, outside code, of the `![[embed]]`s and `[[…#heading]]` links
-/// `convert_markdown` rewrites, each with the length of its opening marker.
-pub(crate) fn wikilink_ranges(content: &str) -> Vec<(usize, usize, usize)> {
-    let regions = code_region_ranges(content);
-    let embeds = INTERNAL_EMBED_RE
-        .find_iter(content)
-        .map(|m| (m.start(), m.end(), 3));
-    let links = WIKILINK_RE
-        .captures_iter(content)
-        .filter(|caps| wikilink_parts(content, caps).is_some())
-        .map(|caps| (caps.get(0).unwrap().start(), caps.get(0).unwrap().end(), 2));
-    embeds
-        .chain(links)
-        .filter(|&(start, _, _)| !in_code_region(&regions, start))
-        .collect()
-}
-
 fn process_wikilinks<'a>(content: &'a str) -> Cow<'a, str> {
     let mut processed = Cow::Borrowed(content);
 

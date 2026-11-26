@@ -73,11 +73,11 @@
 	}
 
 	function handleHideMouseEnter(e: MouseEvent) {
-		onshowTooltip?.(e, 'Hide editor toolbar', '', 'below');
+		onshowTooltip?.(e, t('tooltip.hideEditorToolbar', settings.language), '', 'below');
 	}
 
 	function handleOverflowMouseEnter(e: MouseEvent) {
-		onshowTooltip?.(e, 'More formatting options', '', 'below');
+		onshowTooltip?.(e, t('tooltip.moreActions', settings.language), '', 'below');
 	}
 
 	function handleWindowClick(e: MouseEvent) {
@@ -131,6 +131,8 @@
 		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="4" height="4" rx="1"/><path d="m3 17 2 2 4-4"/><line x1="13" x2="21" y1="7" y2="7"/><line x1="13" x2="21" y1="17" y2="17"/></svg>
 	{:else if toolId === 'fmt-link'}
 		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+	{:else if toolId === 'fmt-image'}
+		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="m4 17 5-5 4 4 4-6 4 6"/></svg>
 	{:else if toolId === 'insert-table-simple'}
 		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
 	{/if}
@@ -141,21 +143,21 @@
 		class="table-grid-popover"
 		role="dialog"
 		tabindex="-1"
-		aria-label="Table Dimensions Picker"
+		aria-label={t('editor.selectTableSize', settings.language)}
 		transition:fly={{ y: 5, duration: 150 }}
 		onkeydown={(e) => { if (e.key === 'Escape') tablePickerOpen = false; }}
 		onclick={(e) => e.stopPropagation()}>
 		<div class="table-grid-header">
 			<span class="table-grid-title">{t('menu.insertTable', settings.language)}</span>
 			<span class="table-grid-dims">
-				{hoverRows > 0 && hoverCols > 0 ? `${hoverCols} × ${hoverRows}` : 'Select size'}
+				{hoverRows > 0 && hoverCols > 0 ? `${hoverCols} × ${hoverRows}` : t('editor.selectTableSize', settings.language)}
 			</span>
 		</div>
 
 		<div
 			class="table-grid-cells"
 			role="grid"
-			aria-label="Table grid"
+			aria-label={t('menu.insertTable', settings.language)}
 			tabindex="0"
 			onmouseleave={() => {
 				hoverRows = 0;
@@ -172,7 +174,7 @@
 							class="table-grid-cell"
 							class:highlighted={isSelected}
 							role="gridcell"
-							aria-label={`${c} columns by ${r} rows`}
+							aria-label={t('editor.tableSize', settings.language).replace('{{columns}}', String(c)).replace('{{rows}}', String(r))}
 							onmouseenter={() => {
 								hoverRows = r;
 								hoverCols = c;
@@ -186,7 +188,7 @@
 	</div>
 {/snippet}
 
-<div bind:this={containerEl} class="editor-toolbar" role="toolbar" aria-label="Markdown formatting">
+<div bind:this={containerEl} class="editor-toolbar" role="toolbar" aria-label={t('settings.editorToolbar', settings.language)}>
 	<div class="toolbar-tools-group">
 		{#each visibleTools as tool, index (tool.id)}
 			{#if index > 0 && visibleTools[index - 1].group !== tool.group}
@@ -241,7 +243,7 @@
 					type="button"
 					class="toolbar-btn overflow-btn"
 					class:active={overflowMenuOpen || (tablePickerOpen && overflowTools.some(t => t.id === 'insert-table-simple'))}
-					aria-label="More formatting options"
+				aria-label={t('tooltip.moreActions', settings.language)}
 					onmouseenter={handleOverflowMouseEnter}
 					onmouseleave={() => onhideTooltip?.()}
 					onclick={(e) => {
@@ -311,7 +313,7 @@
 		<button
 			type="button"
 			class="toolbar-btn hide-toggle-btn"
-			aria-label="Hide editor toolbar"
+			aria-label={t('tooltip.hideEditorToolbar', settings.language)}
 			onmouseenter={handleHideMouseEnter}
 			onmouseleave={() => onhideTooltip?.()}
 			onfocus={(e) => handleHideMouseEnter(e as unknown as MouseEvent)}

@@ -13,37 +13,25 @@ import type { TranslationKey } from './i18n.js';
  * (`newFileDefaultMode`), because "what should an empty buffer open as" and
  * "what should a file I picked open as" are not the same question.
  */
-export type OpenFileMode = 'preview' | 'editor' | 'split';
+export type OpenFileMode = 'preview' | 'editor' | 'split' | 'source';
 
-export const DEFAULT_OPEN_FILE_MODE: OpenFileMode = 'preview';
+export const DEFAULT_OPEN_FILE_MODE: OpenFileMode = 'editor';
 
 /** The Settings select, in order: the one control, with its three answers. */
 export const OPEN_FILE_MODE_OPTIONS: readonly { value: OpenFileMode; labelKey: TranslationKey }[] = [
-	{ value: 'preview', labelKey: 'settings.preview' },
-	{ value: 'editor', labelKey: 'settings.editor' },
+	{ value: 'editor', labelKey: 'menu.liveEditor' },
 	{ value: 'split', labelKey: 'menu.splitView' },
+	{ value: 'source', labelKey: 'menu.sourceEditor' },
+	{ value: 'preview', labelKey: 'settings.preview' },
 ];
 
 export function isOpenFileMode(value: unknown): value is OpenFileMode {
-	return value === 'preview' || value === 'editor' || value === 'split';
+	return value === 'preview' || value === 'editor' || value === 'split' || value === 'source';
 }
 
-/**
- * The stored preference, and what to do about the boolean it replaced.
- *
- * Until split view became a third answer this was `editor.startInEditor`, a
- * checkbox. An upgrade must not change what anybody's app does, so a machine
- * with no `editor.openFileMode` yet is asked the old question instead — `true`
- * meant "editor", and its `false`/absent meant "preview", which is the default
- * here. The old key is left where it is rather than migrated away: it costs
- * nothing, and a user who rolls back to the previous version finds their
- * setting still there.
- *
- * Read once. The first write of the new key ends the fallback, so a reader who
- * later picks "preview" does not get "editor" back on the next launch.
- */
+// 저장된 모드와 이전 설정의 명시적인 미리보기 선택을 유지한다.
 export function resolveOpenFileMode(stored: string | null, legacyStartInEditor: string | null): OpenFileMode {
 	if (stored !== null) return isOpenFileMode(stored) ? stored : DEFAULT_OPEN_FILE_MODE;
 
-	return legacyStartInEditor === 'true' ? 'editor' : DEFAULT_OPEN_FILE_MODE;
+	return legacyStartInEditor === 'false' ? 'preview' : DEFAULT_OPEN_FILE_MODE;
 }

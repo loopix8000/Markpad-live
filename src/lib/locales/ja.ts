@@ -150,6 +150,11 @@ export default {
         modShiftEnter: '表: 上に行を追加 · その他: 上に空行'
     },
     menu: {
+        copyDiagramAsImage: 'ダイアグラムを画像としてコピー',
+        liveEditor: 'ライブ編集',
+        sourceEditor: 'ソース編集',
+        image: '画像',
+        markdownSource: 'ブロックの Markdown を編集',
         toggleFullScreen: 'フルスクリーンにする/解除',
         about: 'Markpad Live について',
         services: 'サービス',
@@ -270,6 +275,8 @@ export default {
         wholeWord: '単語単位で検索'
     },
     toast: {
+        diagramCopied: 'ダイアグラムを画像としてコピーしました',
+        failedToCopyDiagram: 'ダイアグラムをコピーできませんでした',
         recoveryFailed: '未保存の変更を保持できませんでした。',
         imageSavedSuccessfully: '画像の保存に成功しました',
         failedToSaveImage: '画像の保存に失敗しました',
@@ -358,6 +365,10 @@ export default {
         openFile: 'ファイルを開く',
     },
     editor: {
+        runCommand: 'コマンドを実行',
+        apply: '適用',
+        selectTableSize: '表のサイズを選択',
+        tableSize: '{{columns}} 列 × {{rows}} 行',
         status: {
             lineCol: '行 {{line}}, 列 {{col}}',
             selected: '{{count}} 選択',
@@ -374,6 +385,7 @@ export default {
         addTagTo: '{{field}} にタグを追加'
     },
     tooltip: {
+        hideEditorToolbar: 'エディターのツールバーを非表示',
         menu: 'メニュー',
         more: 'その他',
         back: '戻る',

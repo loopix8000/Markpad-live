@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Tabuľka: riadok nad · Inde: prázdny riadok nad'
     },
     menu: {
+        copyDiagramAsImage: 'Kopírovať diagram ako obrázok',
+        liveEditor: 'Vizuálny editor',
+        sourceEditor: 'Zdrojový editor',
+        image: 'Obrázok',
+        markdownSource: 'Upraviť blok ako Markdown',
         toggleFullScreen: 'Prepnúť na celú obrazovku',
         about: 'O aplikácii Markpad Live',
         services: 'Služby',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Celé slová'
     },
     toast: {
+        diagramCopied: 'Diagram bol skopírovaný ako obrázok',
+        failedToCopyDiagram: 'Diagram sa nepodarilo skopírovať',
         recoveryFailed: 'Neuložené zmeny sa nepodarilo zachovať.',
         imageSavedSuccessfully: 'Obrázok úspešne uložený',
         failedToSaveImage: 'Nepodarilo sa uložiť obrázok',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Otvoriť súbor',
     },
     editor: {
+        runCommand: 'Spustiť príkaz',
+        apply: 'Použiť',
+        selectTableSize: 'Vyberte veľkosť tabuľky',
+        tableSize: 'Stĺpce: {{columns}}, riadky: {{rows}}',
         status: {
             lineCol: 'Riadok {{line}}, Stĺpec {{col}}',
             selected: 'Vybrané: {{count}}',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Predvolené tmavé'
     },
     tooltip: {
+        hideEditorToolbar: 'Skryť panel s nástrojmi editora',
         menu: 'Ponuka',
         more: 'Viac',
         back: 'Späť',

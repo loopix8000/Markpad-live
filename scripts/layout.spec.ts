@@ -1018,17 +1018,17 @@ describe('viewer effect helpers read only what decides them', () => {
 		return () => count;
 	}
 
-	test('split view does not read the outline toggle', () => {
+	test('split source view refreshes rendered headings when the outline opens', () => {
 		const s = runeProps({ isSplit: true, isEditing: true, showToc: false, rawContent: 'x' });
 		const count = runs(() => refreshesPreviewCache(s, () => s.isEditing, () => s.showToc));
 		s.showToc = true;
 		flushSync();
-		assert.equal(count(), 1);
+		assert.equal(count(), 2);
 		s.isSplit = false;
 		flushSync();
 		s.showToc = false;
 		flushSync();
-		assert.equal(count(), 3, 'out of split view the toggle is read');
+		assert.equal(count(), 4, 'the outline toggle is tracked in both editing layouts');
 	});
 
 	test('the Home overlay does not read the active tab', () => {

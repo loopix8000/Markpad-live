@@ -90,8 +90,7 @@ pub async fn open_markdown_preview(
 }
 
 /// `front_matter_lines` is how many leading lines are front matter, which the
-/// frontend decides (`frontMatterFenceLines`); the same for the one below.
-/// Off the main thread like `markdown_semantic_spans`: Monaco asks on every edit.
+/// frontend decides (`frontMatterFenceLines`).
 #[tauri::command]
 #[specta::specta]
 pub async fn markdown_outline(
@@ -99,26 +98,6 @@ pub async fn markdown_outline(
     front_matter_lines: usize,
 ) -> Result<Outline, String> {
     blocking(move || Ok(outline(&markdown, front_matter_lines))).await
-}
-
-/// The ranges the editor should colour, from the same parse the preview uses.
-///
-/// Off the main thread like `render_markdown`: measured at 0.7 ms for a 500-line
-/// document and 24 ms for a 1.7 MB one, which is small but not nothing, and
-/// Monaco asks for this on every edit.
-#[tauri::command]
-#[specta::specta]
-pub async fn markdown_semantic_spans(
-    content: String,
-    front_matter_lines: usize,
-) -> Result<Vec<crate::semantic::SemanticSpan>, String> {
-    blocking(move || {
-        Ok(crate::semantic::semantic_spans(
-            &content,
-            front_matter_lines,
-        ))
-    })
-    .await
 }
 
 /// `split_blocks`: the preview's form, with `BLOCK_SEPARATOR` between

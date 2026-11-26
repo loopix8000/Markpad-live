@@ -218,6 +218,10 @@ const en = {
         modShiftEnter: 'Table: row above · Else: line above'
     },
     menu: {
+        liveEditor: 'Live editing',
+        sourceEditor: 'Source editing',
+        image: 'Image',
+        markdownSource: 'Edit block as Markdown',
         toggleFullScreen: 'Toggle Full Screen',
         about: 'About Markpad Live',
         services: 'Services',
@@ -429,6 +433,10 @@ const en = {
         openFile: 'Open File',
     },
     editor: {
+        runCommand: 'Run command',
+        apply: 'Apply',
+        selectTableSize: 'Select table size',
+        tableSize: '{{columns}} columns × {{rows}} rows',
         status: {
             lineCol: 'Ln {{line}}, Col {{col}}',
             selected: '{{count}} selected',
@@ -468,6 +476,7 @@ const en = {
         toggleAutoReload: 'Toggle Auto-Reload',
         autoReload: 'Auto-Reload',
         editorToolbar: 'Editor Toolbar',
+        hideEditorToolbar: 'Hide editor toolbar',
         changeTheme: 'Change Theme',
         undock: 'Undock',
         dock: 'Dock',

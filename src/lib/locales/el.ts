@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Πίνακας: γραμμή πάνω · Αλλού: κενή γραμμή πάνω'
     },
     menu: {
+        copyDiagramAsImage: 'Αντιγραφή διαγράμματος ως εικόνας',
+        liveEditor: 'Οπτική επεξεργασία',
+        sourceEditor: 'Επεξεργασία πηγής',
+        image: 'Εικόνα',
+        markdownSource: 'Επεξεργασία μπλοκ ως Markdown',
         toggleFullScreen: 'Εναλλαγή πλήρους οθόνης',
         about: 'Σχετικά με το Markpad Live',
         services: 'Υπηρεσίες',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Ολόκληρη λέξη'
     },
     toast: {
+        diagramCopied: 'Το διάγραμμα αντιγράφηκε ως εικόνα',
+        failedToCopyDiagram: 'Δεν ήταν δυνατή η αντιγραφή του διαγράμματος',
         recoveryFailed: 'Δεν ήταν δυνατή η διατήρηση των μη αποθηκευμένων αλλαγών.',
         imageSavedSuccessfully: 'Η εικόνα αποθηκεύτηκε με επιτυχία',
         failedToSaveImage: 'Αποτυχία αποθήκευσης εικόνας',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Άνοιγμα αρχείου',
     },
     editor: {
+        runCommand: 'Εκτέλεση εντολής',
+        apply: 'Εφαρμογή',
+        selectTableSize: 'Επιλογή μεγέθους πίνακα',
+        tableSize: 'Στήλες: {{columns}}, γραμμές: {{rows}}',
         status: {
             lineCol: 'Γραμμή {{line}}, Στήλη {{col}}',
             selected: '{{count}} επιλεγμένα',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Προεπιλεγμένο σκοτεινό'
     },
     tooltip: {
+        hideEditorToolbar: 'Απόκρυψη γραμμής εργαλείων επεξεργαστή',
         menu: 'Μενού',
         more: 'Περισσότερα',
         back: 'Πίσω',

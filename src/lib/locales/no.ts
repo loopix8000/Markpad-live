@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Tabell: rad over · Ellers: tom linje over'
     },
     menu: {
+        copyDiagramAsImage: 'Kopier diagram som bilde',
+        liveEditor: 'Visuell redigering',
+        sourceEditor: 'Rediger kildetekst',
+        image: 'Bilde',
+        markdownSource: 'Rediger blokk som Markdown',
         toggleFullScreen: 'Slå fullskjerm av/på',
         about: 'Om Markpad Live',
         services: 'Tjenester',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Bare hele ord'
     },
     toast: {
+        diagramCopied: 'Diagrammet er kopiert som bilde',
+        failedToCopyDiagram: 'Kunne ikke kopiere diagrammet',
         recoveryFailed: 'Kunne ikke beholde ulagrede endringer.',
         imageSavedSuccessfully: 'Bilde lagret',
         failedToSaveImage: 'Kunne ikke lagre bilde',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Åpne fil',
     },
     editor: {
+        runCommand: 'Kjør kommando',
+        apply: 'Bruk',
+        selectTableSize: 'Velg tabellstørrelse',
+        tableSize: '{{columns}} kolonner × {{rows}} rader',
         status: {
             lineCol: 'Linje {{line}}, Kolonne {{col}}',
             selected: '{{count}} merket',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Standard mørk'
     },
     tooltip: {
+        hideEditorToolbar: 'Skjul verktøylinjen i redigeringsprogrammet',
         menu: 'Meny',
         more: 'Mer',
         back: 'Tilbake',

@@ -331,9 +331,9 @@ export function createViewMode(o: ViewModeOptions) {
 		const selected = getSelectionSourceRange();
 
 		if (!hasPreviewPane()) {
-			// The editor is already the whole window: nowhere further to take
-			// the reader, so this is the toggle back out.
-			await toggleEdit();
+			// 단독 편집 화면에서 단축키는 라이브 편집과 원문 편집을 전환한다.
+			const tab = tabManager.activeTab;
+			if (tab) tab.sourceOnly = !tab.sourceOnly;
 			return;
 		}
 
@@ -417,15 +417,19 @@ export function createViewMode(o: ViewModeOptions) {
 		const tab = tabManager.activeTab;
 		if (!tab || viewModeOf(tab) === target) return;
 		if (target === 'split') return toggleSplitView(tab.id);
-		if (!tab.isSplit) return target === 'edit' ? toggleEditView() : toggleEdit();
-		// Leaving split: the editor is already on screen and holds the full
-		// buffer, so Edit only drops the preview. Preview goes through the
-		// normal close, which flushes and renders.
-		if (target === 'edit') {
+		if (target === 'edit' || target === 'source') {
+			if (!tab.isEditing && !tab.isSplit) {
+				if (target === 'edit') await editSourceRange(getSelectionSourceRange());
+				else await toggleEdit();
+				if (tabManager.activeTab?.id !== tab.id || !tab.isEditing) return;
+			}
 			tab.isEditing = true;
-			tabManager.setSplitEnabled(tab.id, false);
+			tab.sourceOnly = target === 'source';
+			if (tab.isSplit) tabManager.setSplitEnabled(tab.id, false);
 			return;
 		}
+		tab.sourceOnly = false;
+		if (!tab.isSplit) return toggleEdit();
 		tab.isEditing = false;
 		await toggleSplitView(tab.id);
 	}

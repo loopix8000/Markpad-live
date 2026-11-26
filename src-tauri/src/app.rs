@@ -106,7 +106,6 @@ fn bindings_builder() -> tauri_specta::Builder<tauri::Wry> {
             commands::clipboard_read_file_list,
             commands::open_markdown_preview,
             commands::render_markdown,
-            commands::markdown_semantic_spans,
             commands::markdown_outline,
             window_runtime::send_markdown_path,
             commands::read_file_content_checked,

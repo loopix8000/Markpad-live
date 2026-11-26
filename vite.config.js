@@ -2,16 +2,12 @@ import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
-import { monacoImePatch } from "./scripts/monacoImePatch.mjs";
 
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
-  // See scripts/monacoImePatch.mjs: a build-time patch to Monaco, to delete
-  // once microsoft/vscode#333909 ships in a release.
   plugins: [
-    monacoImePatch,
     sveltekit({
       preprocess: vitePreprocess(),
       // Tauri doesn't have a Node.js server to do proper SSR

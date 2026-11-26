@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Táblázat: sor fölé · Egyébként: üres sor fölé'
     },
     menu: {
+        copyDiagramAsImage: 'Diagram másolása képként',
+        liveEditor: 'Vizuális szerkesztés',
+        sourceEditor: 'Forrás szerkesztése',
+        image: 'Kép',
+        markdownSource: 'Blokk szerkesztése Markdownként',
         toggleFullScreen: 'Teljes képernyő be/ki',
         about: 'A Markpad Live névjegye',
         services: 'Szolgáltatások',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Csak teljes szó'
     },
     toast: {
+        diagramCopied: 'A diagram képként a vágólapra került',
+        failedToCopyDiagram: 'A diagram másolása nem sikerült',
         recoveryFailed: 'Nem sikerült megőrizni a nem mentett módosításokat.',
         imageSavedSuccessfully: 'Kép sikeresen mentve',
         failedToSaveImage: 'Kép mentése sikertelen',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Fájl megnyitása',
     },
     editor: {
+        runCommand: 'Parancs futtatása',
+        apply: 'Alkalmaz',
+        selectTableSize: 'Táblázatméret kiválasztása',
+        tableSize: '{{columns}} oszlop × {{rows}} sor',
         status: {
             lineCol: '{{line}}. sor, {{col}}. oszlop',
             selected: '{{count}} kijelölve',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Alapértelmezett sötét'
     },
     tooltip: {
+        hideEditorToolbar: 'Szerkesztő eszköztárának elrejtése',
         menu: 'Menü',
         more: 'Több',
         back: 'Vissza',

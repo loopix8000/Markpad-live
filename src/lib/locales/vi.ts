@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Bảng: thêm hàng trên · Nơi khác: dòng trống trên'
     },
     menu: {
+        copyDiagramAsImage: 'Sao chép sơ đồ dưới dạng ảnh',
+        liveEditor: 'Soạn thảo trực quan',
+        sourceEditor: 'Sửa mã nguồn',
+        image: 'Hình ảnh',
+        markdownSource: 'Chỉnh sửa khối dưới dạng Markdown',
         toggleFullScreen: 'Bật/tắt toàn màn hình',
         about: 'Giới thiệu về Markpad Live',
         services: 'Dịch vụ',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Khớp toàn bộ từ'
     },
     toast: {
+        diagramCopied: 'Đã sao chép sơ đồ dưới dạng ảnh',
+        failedToCopyDiagram: 'Không thể sao chép sơ đồ',
         recoveryFailed: 'Không thể giữ lại các thay đổi chưa lưu.',
         imageSavedSuccessfully: 'Đã lưu hình ảnh thành công',
         failedToSaveImage: 'Không thể lưu hình ảnh',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Mở tệp',
     },
     editor: {
+        runCommand: 'Chạy lệnh',
+        apply: 'Áp dụng',
+        selectTableSize: 'Chọn kích thước bảng',
+        tableSize: '{{columns}} cột × {{rows}} hàng',
         status: {
             lineCol: 'Dòng {{line}}, Cột {{col}}',
             selected: 'Đã chọn {{count}}',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Tối mặc định'
     },
     tooltip: {
+        hideEditorToolbar: 'Ẩn thanh công cụ của trình soạn thảo',
         menu: 'Menu',
         more: 'Thêm',
         back: 'Quay lại',

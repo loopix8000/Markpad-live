@@ -1,26 +1,24 @@
 import assert from 'node:assert/strict';
-import { describe, test } from 'node:test';
+import { describe,test } from 'node:test';
 import postcss from 'postcss';
 
 import { duplicateNameSuffixes } from '../src/lib/utils/duplicateTabNames.js';
 import { HOME_TAB_PATH } from '../src/lib/utils/homeTab.js';
-import { getTabFileActions, hasRealFilePath } from '../src/lib/utils/tabFileActions.js';
-import { closestSlotIndex, dragDistance } from '../src/lib/utils/tabReorder.js';
+import { getTabFileActions,hasRealFilePath } from '../src/lib/utils/tabFileActions.js';
+import { closestSlotIndex,dragDistance } from '../src/lib/utils/tabReorder.js';
 import type { Tab } from '../src/lib/stores/tabs.svelte.js';
-import { asBufferLine, asRendererLine, EDITOR_ANCHOR_LINE_OFFSET } from '../src/lib/utils/lineCoordinates.js';
+import { asRendererLine,EDITOR_ANCHOR_LINE_OFFSET } from '../src/lib/utils/lineCoordinates.js';
 import {
-	buildTransferredTab,
-	snapshotTab,
-	transferredTabTitle,
-	validateTransferPayload,
-	type TransferableTab,
+buildTransferredTab,
+snapshotTab,
+transferredTabTitle,
+validateTransferPayload,
+type TransferableTab,
 } from '../src/lib/utils/tabTransfer.js';
 import { commitWithoutTransitions } from '../src/lib/utils/motion.js';
 import { readSource } from './sourceTree.js';
 import { nextUntitledTitle } from '../src/lib/utils/untitledTitle.js';
-import { outgoingTabAnchorLine, type StoredTabPosition, editorReadingPosition } from '../src/lib/utils/editorPosition.js';
-import { EditorJumps, type JumpEditor } from '../src/lib/utils/editorJumps.js';
-import type { ScrollSyncPosition } from '../src/lib/utils/scrollSync.js';
+import { outgoingTabAnchorLine,type StoredTabPosition,editorReadingPosition } from '../src/lib/utils/editorPosition.js';
 
 describe('duplicate tab names', () => {
 	function suffixes(...paths: string[]): (string | undefined)[] {
@@ -507,44 +505,6 @@ describe('editor reading position flush', () => {
 			text: 'body',
 		});
 		assert.equal(anchorLine, null);
-	});
-
-	test('a sync asked for while Monaco is loading is kept, and spent after the restore', () => {
-		// #799: Ctrl+E from the preview asks before the editor exists. Dropping the
-		// request left the editor wherever its old view state put it. The editor
-		// spends it after its view-state restore, and before a queued "edit this
-		// fragment", which has to win over both.
-		const log: unknown[] = [];
-		const model = { getLineCount: () => 3, getLineMaxColumn: () => 5 };
-		const editor = {
-			getModel: () => model,
-			revealLineNearTop: () => {},
-			revealLineInCenterIfOutsideViewport: (line: number) => log.push(['reveal', line]),
-			setSelection: () => {},
-			focus: () => {},
-		} as unknown as JumpEditor;
-		const state = { ready: false };
-		const jumps = new EditorJumps({
-			monaco: () => ({ editor: { ScrollType: { Smooth: 0, Immediate: 1 } } }) as never,
-			editor: () => editor,
-			ready: () => state.ready,
-			scrollTo: (position, options) => log.push(['scroll', position, options]),
-		});
-		const position: ScrollSyncPosition = { section: 'body', ratio: 0.4, line: asBufferLine(12) };
-
-		jumps.syncScrollToPosition(position, { cursorIntoView: true });
-		jumps.revealSourceRange(2, 2);
-		assert.deepEqual(log, []);
-
-		state.ready = true;
-		jumps.spendPending();
-		assert.deepEqual(log, [
-			['scroll', position, { cursorIntoView: true }],
-			['reveal', 2],
-		]);
-
-		jumps.syncScrollToPosition(position);
-		assert.deepEqual(log.at(-1), ['scroll', position, { cursorIntoView: false }], 'once ready, a sync is not queued');
 	});
 });
 

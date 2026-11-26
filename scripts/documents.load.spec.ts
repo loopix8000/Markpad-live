@@ -11,6 +11,10 @@ import { afterAll, beforeAll, describe, test } from 'vitest';
 
 const { tabManager } = await import('../src/lib/stores/tabs.svelte.js');
 const { settings } = await import('../src/lib/stores/settings.svelte.js');
+// 미리보기의 부분 읽기 및 편집 전 전체 읽기를 검증하는 픽스처.
+const initialOpenMode = settings.openFileMode;
+beforeAll(() => { settings.openFileMode = 'preview'; });
+afterAll(() => { settings.openFileMode = initialOpenMode; });
 const { createDocumentSession } = await import('../src/lib/sessions/documentSession.svelte.js');
 
 /**

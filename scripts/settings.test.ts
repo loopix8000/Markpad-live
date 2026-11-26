@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
-import { describe, test } from 'node:test';
+import { describe,test } from 'node:test';
 
-import { DEFAULT_AUTO_SAVE, resolveAutoSave } from '../src/lib/utils/autoSaveSetting.js';
+import { DEFAULT_AUTO_SAVE,resolveAutoSave } from '../src/lib/utils/autoSaveSetting.js';
 import { fontFamilyValue } from '../src/lib/utils/fontFamily.js';
-import { editorOptionsFromSettings } from '../src/lib/utils/editorOptions.js';
 import { previewAppearanceFrom } from '../src/lib/utils/previewLayout.js';
-import { getSupportedLanguages, type LanguageCode, t, type Translation, type TranslationKey } from '../src/lib/utils/i18n.js';
-import { isHexColor, isSafeCssColor, sanitizeThemeColors } from '../src/lib/utils/theme.js';
+import { getSupportedLanguages,type LanguageCode,t,type Translation,type TranslationKey } from '../src/lib/utils/i18n.js';
+import { isHexColor,isSafeCssColor,sanitizeThemeColors } from '../src/lib/utils/theme.js';
 import { translations } from './allTranslations.js';
 
 /**
@@ -140,25 +139,7 @@ describe('font family values', () => {
 		assert.equal(appearance.fontFamily, `${quoted}, sans-serif`);
 		assert.equal(appearance.codeFontFamily, '"Gill Sans (Body)", monospace');
 
-		const editor = editorOptionsFromSettings(
-			{
-				minimap: false,
-				stickyScroll: true,
-				wordWrap: 'on',
-				editorMaxWidth: 80,
-				lineNumbers: 'on',
-				renderLineHighlight: 'line',
-				occurrencesHighlight: false,
-				editorFontSize: 14,
-				editorFont: 'M+ 1c',
-				animateJumpScroll: false,
-				animateCursor: false,
-				showWhitespace: false,
-				typewriterMode: false,
-			},
-			100,
-		);
-		assert.equal(editor.fontFamily, '"M+ 1c", monospace');
+		assert.equal(fontFamilyValue('M+ 1c', 'monospace'), '"M+ 1c", monospace');
 	});
 });
 

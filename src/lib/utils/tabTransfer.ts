@@ -43,6 +43,7 @@ export interface TransferableTab {
 	 */
 	isDirty: boolean;
 	isEditing: boolean;
+	sourceOnly?: boolean;
 	isSplit: boolean;
 	isScrollSynced: boolean;
 	/**
@@ -101,6 +102,7 @@ export function snapshotTab(tab: Tab): TransferableTab {
 		originalContent: tab.originalContent,
 		isDirty: tab.isDirty,
 		isEditing: tab.isEditing,
+		...(tab.sourceOnly && { sourceOnly: true }),
 		isSplit: tab.isSplit,
 		isScrollSynced: tab.isScrollSynced,
 		hasReplacementChars: tab.hasReplacementChars,
@@ -155,6 +157,7 @@ export function validateTransferPayload(json: string): TransferableTab | null {
 		originalContent: obj.originalContent as string,
 		isDirty: obj.isDirty as boolean,
 		isEditing: obj.isEditing as boolean,
+		...(obj.sourceOnly === true && { sourceOnly: true }),
 		isSplit: obj.isSplit as boolean,
 		isScrollSynced: obj.isScrollSynced as boolean,
 		hasReplacementChars: obj.hasReplacementChars as boolean,
@@ -218,6 +221,7 @@ export function buildTransferredTab(
 			return this.rawContent !== this.originalContent;
 		},
 		isEditing: snap.isEditing,
+		...(snap.sourceOnly && { sourceOnly: true }),
 		history: [...snap.history],
 		historyIndex: snap.historyIndex,
 		editorViewState: null,

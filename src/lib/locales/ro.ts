@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Tabel: rând deasupra · În rest: rând gol deasupra'
     },
     menu: {
+        copyDiagramAsImage: 'Copiază diagrama ca imagine',
+        liveEditor: 'Editare vizuală',
+        sourceEditor: 'Editare sursă',
+        image: 'Imagine',
+        markdownSource: 'Editează blocul ca Markdown',
         toggleFullScreen: 'Comută ecranul complet',
         about: 'Despre Markpad Live',
         services: 'Servicii',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Potrivire cuvânt întreg'
     },
     toast: {
+        diagramCopied: 'Diagrama a fost copiată ca imagine',
+        failedToCopyDiagram: 'Diagrama nu a putut fi copiată',
         recoveryFailed: 'Nu s-au putut păstra modificările nesalvate.',
         imageSavedSuccessfully: 'Imagine salvată cu succes',
         failedToSaveImage: 'Eșec la salvarea imaginii',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Deschidere fișier',
     },
     editor: {
+        runCommand: 'Execută comanda',
+        apply: 'Aplică',
+        selectTableSize: 'Alege dimensiunea tabelului',
+        tableSize: 'Coloane: {{columns}}, rânduri: {{rows}}',
         status: {
             lineCol: 'Lin {{line}}, Col {{col}}',
             selected: '{{count}} selectate',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Întunecat implicit'
     },
     tooltip: {
+        hideEditorToolbar: 'Ascunde bara de instrumente a editorului',
         menu: 'Meniu',
         more: 'Mai mult',
         back: 'Înapoi',

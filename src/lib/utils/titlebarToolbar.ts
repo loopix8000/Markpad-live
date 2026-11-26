@@ -28,10 +28,9 @@ const TITLEBAR_TOOLBAR_ACTIONS: TitlebarToolbarAction[] = [
 	{ id: 'forward', labelKey: 'menu.forward', fallbackName: 'Forward', sample: '>', defaultPlacement: 'bar' },
 	{ id: 'reload', labelKey: 'tooltip.reloadFromDisk', fallbackName: 'Reload from Disk', sample: 'R', defaultPlacement: 'bar', hintKey: 'settings.toolbarDiskFileOnly' },
 	{ id: 'toc', labelKey: 'settings.toolbarToc', fallbackName: 'Show/Hide Table of Contents', sample: 'T', defaultPlacement: 'menu' },
-	{ id: 'fullWidth', labelKey: 'menu.fullWidth', fallbackName: 'Full Width', sample: 'W', defaultPlacement: 'bar' },
+	{ id: 'fullWidth', labelKey: 'menu.fullWidth', fallbackName: 'Full Width', sample: 'W', defaultPlacement: 'bar', hintKey: 'settings.preview' },
 	{ id: 'live', labelKey: 'menu.autoReload', fallbackName: 'Auto-Reload', sample: 'L', defaultPlacement: 'bar', hintKey: 'settings.toolbarDiskFileOnly' },
 	{ id: 'sync', labelKey: 'menu.syncScroll', fallbackName: 'Sync Scroll', sample: 'S', defaultPlacement: 'bar', hintKey: 'settings.toolbarSplitOnly' },
-	{ id: 'swap', labelKey: 'tooltip.swapPanes', fallbackName: 'Swap editor and preview', sample: '<>', defaultPlacement: 'bar', hintKey: 'settings.toolbarSplitOnly' },
 	{ id: 'editorToolbar', labelKey: 'tooltip.editorToolbar', fallbackName: 'Editor Toolbar', sample: 'TB', defaultPlacement: 'bar', hintKey: 'settings.toolbarEditOrSplit' },
 	// Last on the bar: the bar is right-aligned, so only buttons to the right of
 	// the group can move it, and none come and go with the mode (#806).
@@ -76,10 +75,11 @@ function migrateLegacyViewOrder(order: readonly string[]): readonly string[] {
 	return order.flatMap((id) => (id === slot ? ['viewMode'] : LEGACY_VIEW_IDS.includes(id) ? [] : [id]));
 }
 
-export type ViewMode = 'preview' | 'split' | 'edit';
+export type ViewMode = 'preview' | 'split' | 'edit' | 'source';
 
-export function viewModeOf(tab: { isEditing: boolean; isSplit: boolean }): ViewMode {
+export function viewModeOf(tab: { isEditing: boolean; isSplit: boolean; sourceOnly?: boolean }): ViewMode {
 	if (tab.isSplit) return 'split';
+	if (tab.isEditing && tab.sourceOnly) return 'source';
 	return tab.isEditing ? 'edit' : 'preview';
 }
 const requiredToolbarIds = new Set(TITLEBAR_TOOLBAR_ACTIONS.filter((action) => action.required).map((action) => action.id));
@@ -159,6 +159,7 @@ export type TitlebarActionContext = {
 	currentFile: string;
 	isSplit: boolean;
 	isEditing: boolean;
+	sourceOnly?: boolean;
 	zoomLevel?: number;
 };
 
@@ -199,7 +200,7 @@ export function visibleTitlebarActionIds(context: TitlebarActionContext): string
 
 		if (isMarkdown) {
 			list.push('toc');
-			list.push('fullWidth');
+			if (!context.isEditing && !context.isSplit) list.push('fullWidth');
 			// Every mode that has a file on disk, which is every mode an
 			// external writer can surprise. The chord answers the same
 			// question the same way — see the note above.
@@ -208,16 +209,13 @@ export function visibleTitlebarActionIds(context: TitlebarActionContext): string
 			}
 			if (context.isSplit) {
 				list.push('sync');
-				// Only a split has two panes to put in an order, so the
-				// control that orders them exists only there.
-				list.push('swap');
 			}
 			list.push('viewMode');
 		}
 		// Every mode: the button routes like Mod+F, to Monaco's find when no
 		// preview is on screen.
 		if (isMarkdown) list.push('find');
-		if (context.isEditing || context.isSplit) {
+		if (isMarkdown && (context.isSplit || (context.isEditing && !context.sourceOnly))) {
 			list.push('editorToolbar');
 		}
 		list.push('zen');

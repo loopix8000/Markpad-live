@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Tabla: fila encima · Si no: línea encima'
     },
     menu: {
+        copyDiagramAsImage: 'Copiar el diagrama como imagen',
+        liveEditor: 'Edición visual',
+        sourceEditor: 'Editar código fuente',
+        image: 'Imagen',
+        markdownSource: 'Editar bloque como Markdown',
         toggleFullScreen: 'Activar/desactivar pantalla completa',
         about: 'Acerca de Markpad Live',
         services: 'Servicios',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Palabra completa'
     },
     toast: {
+        diagramCopied: 'Diagrama copiado como imagen',
+        failedToCopyDiagram: 'No se pudo copiar el diagrama',
         recoveryFailed: 'No se pudieron conservar los cambios sin guardar.',
         imageSavedSuccessfully: 'Imagen guardada correctamente',
         failedToSaveImage: 'Error al guardar imagen',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Abrir archivo',
     },
     editor: {
+        runCommand: 'Ejecutar comando',
+        apply: 'Aplicar',
+        selectTableSize: 'Seleccionar el tamaño de la tabla',
+        tableSize: 'Columnas: {{columns}}, filas: {{rows}}',
         status: {
             lineCol: 'Ln {{line}}, Col {{col}}',
             selected: '{{count}} seleccionados',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Oscuro predeterminado'
     },
     tooltip: {
+        hideEditorToolbar: 'Ocultar la barra de herramientas del editor',
         menu: 'Menú',
         more: 'Más',
         back: 'Atrás',

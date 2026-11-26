@@ -36,17 +36,8 @@ export const commands = {
 	 */
 	renderMarkdown: (content: string, splitBlocks: boolean | null) => __TAURI_INVOKE<string>("render_markdown", { content, splitBlocks }),
 	/**
-	 *  The ranges the editor should colour, from the same parse the preview uses.
-	 * 
-	 *  Off the main thread like `render_markdown`: measured at 0.7 ms for a 500-line
-	 *  document and 24 ms for a 1.7 MB one, which is small but not nothing, and
-	 *  Monaco asks for this on every edit.
-	 */
-	markdownSemanticSpans: (content: string, frontMatterLines: number) => __TAURI_INVOKE<SemanticSpan[]>("markdown_semantic_spans", { content, frontMatterLines }),
-	/**
 	 *  `front_matter_lines` is how many leading lines are front matter, which the
-	 *  frontend decides (`frontMatterFenceLines`); the same for the one below.
-	 *  Off the main thread like `markdown_semantic_spans`: Monaco asks on every edit.
+	 *  frontend decides (`frontMatterFenceLines`).
 	 */
 	markdownOutline: (markdown: string, frontMatterLines: number) => __TAURI_INVOKE<Outline>("markdown_outline", { markdown, frontMatterLines }),
 	/**
@@ -445,26 +436,6 @@ export type PinnedTagRename = "renamed" |
  *  cancelled.
  */
 export type RefreshOutcome = "updated" | "revoked" | "gone";
-
-/**
- *  What a span is, as the legend in `utils/semanticTokens.ts` spells it: a token
- *  type, plus `.marker` for the `marker` modifier, which is how Monaco's theme
- *  lookup spells it (`tokenTheme._match("heading.marker")`). The frontend gets
- *  this as a string union, so a kind added here without a legend entry fails
- *  svelte-check there.
- */
-export type SemanticKind = "heading" | "heading.marker" | "list.marker" | "task.marker" | "quote.marker" | "rule" | "fence" | "frontmatter" | "table.marker" | "code" | "code.marker" | "strong" | "strong.marker" | "emph" | "emph.marker" | "strongemph" | "strike" | "strike.marker" | "highlight" | "highlight.marker" | "insert" | "insert.marker" | "link" | "link.marker" | "image" | "image.marker" | "math" | "math.marker" | "wikilink" | "wikilink.marker" | "footnote" | "html";
-
-/**
- *  One coloured range, in the coordinates Monaco's semantic tokens speak:
- *  zero-based line, zero-based UTF-16 column, length in UTF-16 code units.
- */
-export type SemanticSpan = {
-	kind: SemanticKind,
-	line: number,
-	start: number,
-	len: number,
-};
 
 /**
  *  `tab-transfer-claimed`: the destination finished taking the tab, so the

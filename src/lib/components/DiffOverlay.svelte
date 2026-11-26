@@ -1,24 +1,8 @@
 <script lang="ts">
-	import { openDiffView } from '../utils/diffView.js';
-
-	/**
-	 * Side-by-side view of what is on disk against what the buffer holds.
-	 *
-	 * The conflict bar asks a question with an irreversible answer — Reload
-	 * replaces the buffer and `setValue` clears the undo stack with it — and
-	 * used to ask it without showing what would be lost. VS Code and Sublime
-	 * both put a Compare beside the same two choices; this is that third
-	 * option, offering them again once the user has seen the difference.
-	 *
-	 * Monaco is dynamically imported, exactly as `Editor.svelte` does it, so
-	 * this costs nothing until the overlay is opened. The chunk is already in
-	 * the bundle by then.
-	 */
 	let {
 		show = false,
 		onDisk = '',
 		mine = '',
-		language = 'markdown',
 		labels,
 		onclose,
 		onreload,
@@ -33,38 +17,6 @@
 		onreload: () => void;
 		onkeep: () => void;
 	} = $props();
-
-	let host = $state<HTMLDivElement | null>(null);
-	let closeView: (() => void) | null = null;
-
-	function dispose() {
-		closeView?.();
-		closeView = null;
-	}
-
-	$effect(() => {
-		const element = host;
-		const original = onDisk;
-		const modified = mine;
-		const languageId = language;
-		if (!show || !element) {
-			dispose();
-			return;
-		}
-
-		let cancelled = false;
-		(async () => {
-			const monaco = await import('monaco-editor');
-			if (cancelled) return;
-			dispose();
-			closeView = openDiffView(monaco, element, original, modified, languageId);
-		})();
-
-		return () => {
-			cancelled = true;
-			dispose();
-		};
-	});
 
 	function onKeyDown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
@@ -87,7 +39,7 @@
 				<button class="diff-action" onclick={onclose}>{labels.close}</button>
 			</div>
 		</div>
-		<div class="diff-body" bind:this={host}></div>
+		<div class="diff-body"><pre aria-label={labels.onDisk}>{onDisk}</pre><pre aria-label={labels.mine}>{mine}</pre></div>
 	</div>
 {/if}
 
@@ -144,5 +96,9 @@
 	.diff-body {
 		flex: 1;
 		min-height: 0;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		overflow: auto;
 	}
+	.diff-body pre { margin: 0; padding: 1em; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--color-fg-default); }
 </style>

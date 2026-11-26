@@ -150,6 +150,11 @@ export default {
         modShiftEnter: 'Tabel: rij erboven · Anders: lege regel erboven'
     },
     menu: {
+        copyDiagramAsImage: 'Diagram als afbeelding kopiëren',
+        liveEditor: 'Visueel bewerken',
+        sourceEditor: 'Brontekst bewerken',
+        image: 'Afbeelding',
+        markdownSource: 'Blok als Markdown bewerken',
         toggleFullScreen: 'Schakel schermvullende weergave in/uit',
         about: 'Over Markpad Live',
         services: 'Voorzieningen',
@@ -270,6 +275,8 @@ export default {
         wholeWord: 'Heel woord'
     },
     toast: {
+        diagramCopied: 'Diagram gekopieerd als afbeelding',
+        failedToCopyDiagram: 'Kan het diagram niet kopiëren',
         recoveryFailed: 'Niet-opgeslagen wijzigingen konden niet worden behouden.',
         imageSavedSuccessfully: 'Afbeelding succesvol opgeslagen',
         failedToSaveImage: 'Kan afbeelding niet opslaan',
@@ -358,6 +365,10 @@ export default {
         openFile: 'Open bestand',
     },
     editor: {
+        runCommand: 'Opdracht uitvoeren',
+        apply: 'Toepassen',
+        selectTableSize: 'Tabelgrootte kiezen',
+        tableSize: 'Kolommen: {{columns}}, rijen: {{rows}}',
         status: {
             lineCol: 'Regel {{line}}, Kol {{col}}',
             selected: '{{count}} geselecteerd',
@@ -379,6 +390,7 @@ export default {
         defaultDark: 'Donker standaard'
     },
     tooltip: {
+        hideEditorToolbar: 'Editorwerkbalk verbergen',
         menu: 'Menu',
         more: 'Meer',
         back: 'Terug',
