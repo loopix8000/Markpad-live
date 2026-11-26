@@ -1,150 +1,46 @@
-<div align="center">
-  <img src="src-tauri/icons/128x128.png" width="128" alt="Markpad Icon" />
-  <h1>Markpad</h1>
-  <p><b>Light as Notepad, elegant as Markdown.</b></p>
-  
-  [![GitHub Release](https://img.shields.io/github/v/release/sftwrdotdev/Markpad?style=flat-square)](https://github.com/sftwrdotdev/Markpad/releases/latest)
+# Markpad Live
 
-  <p>A lightweight, minimalist Markdown viewer and text editor built for productivity across Windows, macOS, and Linux.</p>
+Markpad Live is a desktop Markdown editor for Windows, macOS and Linux. Open a Markdown file and type in the rendered document. Save writes Markdown through the same Rust file and encoding routines used by the original Markpad.
 
-  <a href="https://markpad.dev">Website</a> // <a href="#download">Download</a> // <a href="#what-markpad-renders">What Markpad renders</a> // <a href="https://github.com/sftwrdotdev/Markpad/issues">Report a Bug</a> // <a href="README.zh-CN.md">简体中文</a>
-</div>
+## Editing documents
 
-<br />
+Use the existing formatting toolbar or keyboard shortcuts for headings, bold, italic, underline, strikethrough, lists, quotes, links, inline code, fenced code and tables. Click a task checkbox to update it. Type an image in Markdown, paste an image, or drop an image from your file manager. Saved documents use their configured image directory. Untitled documents embed image data directly in Markdown. Double-click an image to edit its destination.
 
-![demo](pics/demo.gif)
-## Features
+Tabs keep their own selections and undo history while they are open. Recent files, window and session restoration, external file changes, the outline, Zen mode, themes, fonts, HTML export and PDF printing use Markpad's document and preview infrastructure.
 
-**Reading**
-- GitHub-styled rendering, with syntax highlighting in code blocks
-- Maths (KaTeX) and diagrams (Mermaid)
-- Table of contents that follows wherever you scroll
-- Folding by heading, and a Zen mode with everything else out of the way
-- Content zoom, custom typography, custom themes (VS Code themes import)
+| View | Working with a document |
+| --- | --- |
+| Live editing | Edit rendered CommonMark and GFM with Milkdown. |
+| Reading preview (file-opening preference) | Read the document with Markpad's Rust renderer, including KaTeX and Mermaid. |
+| Split | Edit the rendered document on the left or its Markdown source on the right. Both panes share the tab’s file buffer. |
+| Source editing | Edit Markdown directly. The code icon opens this mode. |
 
-**Editing**
-- Monaco (VS Code editor) with Vim support
-- Split view, with optional line-for-line scroll sync
-- Heading completion for links, and a customisable formatting toolbar
-- Paste an image straight into the document; drag files in to open them
+GitHub-style tables, task lists, strikethrough and footnotes have editor nodes. Mermaid remains an editable fenced code block. Blocks containing YAML front matter, math, wikilinks, callouts, reference definitions or unsupported HTML can be edited as Markdown text. The editor context menu also lets you edit the current block as Markdown, including the syntax for a new extension. Use Preview to see Markpad's rendering of these extensions. Non-Markdown files use literal text editing.
 
-**Documents**
-- Tabs, multiple windows, window tags, and a session that comes back
-- A Home page with recent files, and pinned tags that reopen a saved group of files
-- Auto-reload when a file changes on disk
-- Export to HTML, print to PDF
-- Wikilinks, embeds and callouts alongside standard Markdown. See
-  **[What Markpad renders](#what-markpad-renders)** below
+The editor retains the original spelling of untouched blocks, including setext headings, reference definitions and line endings. Editing a formatted block can change its delimiters or spacing when Milkdown serializes it. Open and close a document without editing to retain its original source. Vim mode, the Monaco minimap and source-language IntelliSense are outside this editor.
 
-**More**
-- Windows, macOS and Linux
-- No telemetry, free and open source
-- 26 interface languages
+## Development
 
-## Download
+The desktop shell uses Tauri 2 and Rust. SvelteKit, Svelte 5, TypeScript and Vite implement the interface. Milkdown Kit 7.23 uses ProseMirror with the CommonMark and GFM presets. The application uses the existing Markpad toolbar, theme and file handling. Comrak, KaTeX and Mermaid power the reading and export views.
 
-### Package Managers
+Install Node.js 24, Rust stable and the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for your OS.
 
-#### Windows (Chocolatey)
-
-```powershell
-choco install markpad-app
+```sh
+npm ci
+npm run tauri dev
 ```
 
-#### macOS (Homebrew)
-
-```bash
-brew install --cask markpad
+```sh
+npm run check
+npm run lint
+npm test
+npm run test:vitest
+cargo test --manifest-path src-tauri/Cargo.toml
+npm run tauri build
 ```
 
-#### Linux (Snap)
+For a local installer without updater signing, build with the Tauri configuration override `{"bundle":{"createUpdaterArtifacts":false}}`. Distribution and signing setup are in [RELEASING.md](RELEASING.md).
 
-```bash
-sudo snap install markpad 
-```
+## Origin and license
 
-### Direct download
-
-Every file below is on the [latest release](https://github.com/sftwrdotdev/Markpad/releases/latest) page, and on [markpad.dev](https://markpad.dev).
-
-| System | Chip | File | |
-|---|---|---|---|
-| **Windows** | Intel / AMD | `Markpad_x.y.z_x64-setup.exe` | installer |
-| | Intel / AMD | `Markpad_x.y.z_x64.exe` | portable, no installation |
-| | ARM64 | `Markpad_x.y.z_arm64-setup.exe` | installer |
-| | ARM64 | `Markpad_x.y.z_arm64.exe` | portable |
-| **macOS** | Intel **and** Apple Silicon | `Markpad_x.y.z_universal.dmg` | one file for both |
-| **Linux** | x86-64 | `Markpad_x.y.z_amd64.AppImage` | portable, no installation |
-| | x86-64 | `Markpad_x.y.z_amd64.deb` | Debian, Ubuntu |
-| | x86-64 | `Markpad-x.y.z-1.x86_64.rpm` | Fedora, RHEL, openSUSE |
-
-The two Windows files differ only in that one installs and one does not — `-setup.exe` puts Markpad in Program Files and the Start menu; the plain `.exe` runs from wherever you put it.
-
-> After a direct `.dmg` or Homebrew (macOS), `*-setup.exe` (Windows NSIS) or `.AppImage` (Linux) install, Markpad self-updates from GitHub releases via the in-app *Check for Updates…* entry (macOS app menu, or Settings elsewhere). Chocolatey and Snap keep Markpad current through those package managers instead.
->
-> **`.deb` and `.rpm` are one-time installs.** `tauri-plugin-updater` cannot replace a package-managed install, and there is no apt or dnf repository to update from — upgrading means downloading a newer package from the releases page. *Check for Updates…* recognises a package-managed install and tells you so.
-
-## What Markpad renders
-
-Every syntax Markpad renders is in one document — [**download `markdown-syntax.md`**](https://raw.githubusercontent.com/sftwrdotdev/Markpad/master/samples/markdown-syntax.md) and open it in Markpad: the preview shows each feature working, the editor beside it shows how each one is written ([read it on GitHub](samples/markdown-syntax.md) first if you like). Give the same file to an AI and it knows exactly what Markpad can render: ask it to reformat a document you already have, or to write a new one that uses the whole range — callouts, tables, footnotes, maths, diagrams — and open the result here.
-
-## Installation from source
-
-- Clone the repository
-- Run `npm install` to install dependencies
-- Run `npm run tauri build` to build the executable 
-
-### Isolated macOS test bundle
-
-For local verification without opening or replacing `/Applications/Markpad.app`, build an unsigned test-only app with an independent identifier:
-
-```bash
-MARKPAD_TEST_BUNDLE_ID=dev.example.markpad.test npm run build:test-bundle
-```
-
-The result is placed in `dist/test-bundle/`. It is not a distributable release: it has no Developer ID notarization or Windows Authenticode signature.
-
-## Issues & Feedback
-
-If you find a bug, have a feature request, or just want to leave some feedback, please [open an issue](https://github.com/sftwrdotdev/Markpad/issues/new/choose). I'm actively developing Markpad and love hearing from users!
-
-## Contributing
-
-Contributions are always welcome! Markpad is built with SvelteKit and Tauri. 
-
-1. **Fork & Clone** the repository
-2. **Install dependencies**: `npm install`
-3. **Run the dev server**: `npm run tauri dev` (to run the Tauri app locally)
-4. **Make your changes** and ensure type checking passes: `npm run check`
-5. **Open a Pull Request**!
-
-Please ensure your code follows the existing style and that you add descriptions for any new features.
-
-## Screenshots
-
-#### Split view
-![split view](pics/splitview.png)
-#### Editor toolbar
-![editor toolbar](pics/2.7.0/editor-toolbar.png)
-#### Home page
-![home page](pics/home.png)
-#### Split view minimal
-![split view minimal](pics/splitview-minimal.png)
-#### Code blocks
-![code block](pics/codeblock.png)
-#### Light mode
-![light mode](pics/lightmode.png)
-#### Settings
-![settings](pics/2.7.0/editor-settings.png)
-#### Zen mode
-![zen mode](pics/zenmode-view.png)
-#### Theme settings
-![theme setting](pics/theme-setting.png)
-#### Table of Contents
-![table of contents](pics/2.7.0/floating-toc.png)
-#### Theme example
-![theme example](pics/theme-example.png)
-#### Window tag
-![window tag](pics/2.7.0/window-tag.png)
-#### Drag and drop
-![drag and drop](pics/drag-and-drop.png)
+Markpad Live is a fork of [Markpad](https://github.com/sftwrdotdev/Markpad) by Alec Ames and contributors. It retains the original BSD 3-Clause license and copyright notice in [LICENSE](LICENSE). The live editor uses the MIT-licensed [Milkdown](https://github.com/Milkdown/milkdown).

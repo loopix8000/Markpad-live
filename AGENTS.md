@@ -1,4 +1,4 @@
-# AGENTS.md - Coding Guidelines for Markpad
+# AGENTS.md - Coding Guidelines for Markpad Live
 
 This file contains guidelines for AI agents working on the Markpad codebase.
 
@@ -205,7 +205,7 @@ what an effect writes cannot fail. Under vitest the module is compiled for real 
 **Leave it as `*.test.ts` (`node --test`) otherwise.** Plain TypeScript modules run fine
 there, the runner is already configured, and moving a passing file buys nothing.
 
-**Mount a component only for its markup wiring, and only one that does not need Monaco,
+**Mount a component only for its markup wiring, and only one that does not need Milkdown,
 mermaid or KaTeX.** The suite mounts `Toc`, `HomePage`, `Settings`, `TitleBar`, `Tab`,
 `UpdateDialog` and `ContextMenu` this way (vitest, jsdom; stub `Element.prototype.animate`
 for transitions). `MarkdownViewer.svelte` and `Editor.svelte` are not mounted: their logic is
@@ -260,7 +260,7 @@ and would need its own seam.
 
 - No ESLint or Prettier configured - rely on TypeScript strict mode
 - The app runs as SPA (ssr: false in +layout.ts)
-- Uses Monaco Editor for text editing
+- Uses Milkdown Kit for live Markdown editing
 - Supports Windows, macOS, and Linux
 
 ## Versioning
@@ -270,7 +270,7 @@ three and checks they agree. By hand, all three go in the same commit:
 
 - `package.json` `version`
 - `src-tauri/Cargo.toml` `version`
-- `src-tauri/Cargo.lock` — not by hand: run `cargo update -p Markpad --precise
+- `src-tauri/Cargo.lock` — not by hand: run `cargo update -p markpad-live --precise
   <version>` in `src-tauri` (or any `cargo check` there, which rewrites it as a
   side effect) and commit the one-line diff.
 
