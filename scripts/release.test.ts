@@ -43,15 +43,15 @@ describe('release version bump', () => {
 		try {
 			mkdirSync(join(root, 'src-tauri'));
 			mkdirSync(join(root, 'bin'));
-			writeFileSync(join(root, 'package.json'), '{\n  "name": "markpad",\n  "version": "1.0.0"\n}\n');
+			writeFileSync(join(root, 'package.json'), '{\n  "name": "markpad-live",\n  "version": "1.0.0"\n}\n');
 			writeFileSync(
 				join(root, 'src-tauri/Cargo.toml'),
 				// A dependency's `version` ahead of ours, as a reordered manifest has.
-				'[dependencies]\nserde = { version = "1.0.0" }\n\n[package]\nname = "Markpad"\nversion = "1.0.0"\n',
+				'[dependencies]\nserde = { version = "1.0.0" }\n\n[package]\nname = "markpad-live"\nversion = "1.0.0"\n',
 			);
 			writeFileSync(
 				join(root, 'src-tauri/Cargo.lock'),
-				'[[package]]\nname = "Markpad"\nversion = "1.0.0"\n\n[[package]]\nname = "serde"\nversion = "1.0.0"\n',
+				'[[package]]\nname = "markpad-live"\nversion = "1.0.0"\n\n[[package]]\nname = "serde"\nversion = "1.0.0"\n',
 			);
 			const cargo = join(root, 'bin/cargo');
 			writeFileSync(
@@ -59,8 +59,8 @@ describe('release version bump', () => {
 				[
 					'#!/bin/sh',
 					'echo "$PWD $*" > ../cargo-call',
-					'[ "$1 $2 $3" = "update -p Markpad" ] || exit 9',
-					'sed -i.bak "/^name = \\"Markpad\\"$/{n;s/^version = .*/version = \\"$5\\"/;}" Cargo.lock',
+					'[ "$1 $2 $3" = "update -p markpad-live" ] || exit 9',
+					'sed -i.bak "/^name = \\"markpad-live\\"$/{n;s/^version = .*/version = \\"$5\\"/;}" Cargo.lock',
 				].join('\n'),
 			);
 			chmodSync(cargo, 0o755);
@@ -74,13 +74,13 @@ describe('release version bump', () => {
 
 			assert.equal(JSON.parse(readSource(join(root, 'package.json'))).version, '2.3.4');
 			const toml = readSource(join(root, 'src-tauri/Cargo.toml'));
-			assert.match(toml, /\[package\]\nname = "Markpad"\nversion = "2.3.4"/);
+			assert.match(toml, /\[package\]\nname = "markpad-live"\nversion = "2.3.4"/);
 			assert.match(toml, /serde = \{ version = "1.0.0" \}/, 'a dependency version is not ours');
-			assert.match(readSource(join(root, 'src-tauri/Cargo.lock')), /name = "Markpad"\nversion = "2.3.4"/);
+			assert.match(readSource(join(root, 'src-tauri/Cargo.lock')), /name = "markpad-live"\nversion = "2.3.4"/);
 			// The lock is cargo's format; it is handed to cargo, not rewritten.
 			assert.equal(
 				readSource(join(root, 'cargo-call')).trim(),
-				`${join(root, 'src-tauri')} update -p Markpad --precise 2.3.4`,
+				`${join(root, 'src-tauri')} update -p markpad-live --precise 2.3.4`,
 			);
 		} finally {
 			rmSync(root, { recursive: true, force: true });
