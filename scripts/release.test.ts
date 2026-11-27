@@ -7,6 +7,7 @@ import { describe, test } from 'node:test';
 
 import { parse } from 'yaml';
 
+import { downloadAssets, downloadTable, missingDownloads } from './release-download-table.mjs';
 import { offsetOf, readSource, sliceBetween } from './sourceTree.js';
 
 describe('the sourceTree helpers', () => {
@@ -85,6 +86,42 @@ describe('release version bump', () => {
 		} finally {
 			rmSync(root, { recursive: true, force: true });
 		}
+	});
+});
+
+// 릴리스 설명의 다운로드 표. 사람이 받을 파일마다 링크가 하나씩 있고, 링크는 실제로
+// 올라간 파일과 맞아야 한다.
+describe('release download table', () => {
+	test('every file a person installs has a link to this release', () => {
+		const table = downloadTable('1.2.3', 'owner/app');
+		for (const name of Object.values(downloadAssets('1.2.3'))) {
+			assert.ok(
+				table.includes(`(https://github.com/owner/app/releases/download/v1.2.3/${name})`),
+				`${name} has no link in the table`,
+			);
+		}
+	});
+
+	test('the files only the updater reads are not offered as downloads', () => {
+		const links = [...downloadTable('1.2.3', 'owner/app').matchAll(/\]\(([^)]+)\)/g)].map((m) => m[1]);
+		assert.ok(links.length > 0);
+		for (const link of links) assert.doesNotMatch(link, /\.sig$|\.app\.tar\.gz$|latest\.json$/, link);
+	});
+
+	test('the check names each linked file the release does not have', () => {
+		// 0.1.0에 실제로 올라간 파일 이름. 번들 이름이 바뀌면 표의 링크가 깨진다.
+		const uploaded = [
+			'latest.json', 'markpad-live_0.1.0_arm64.exe', 'markpad-live_0.1.0_x64.exe', 'Markpad.Live-0.1.0-1.x86_64.rpm',
+			'Markpad.Live.app.tar.gz', 'Markpad.Live.app.tar.gz.sig', 'Markpad.Live_0.1.0_amd64.AppImage',
+			'Markpad.Live_0.1.0_amd64.AppImage.sig', 'Markpad.Live_0.1.0_amd64.deb', 'Markpad.Live_0.1.0_arm64-setup.exe',
+			'Markpad.Live_0.1.0_arm64-setup.exe.sig', 'Markpad.Live_0.1.0_universal.dmg', 'Markpad.Live_0.1.0_x64-setup.exe',
+			'Markpad.Live_0.1.0_x64-setup.exe.sig',
+		];
+		assert.deepEqual(missingDownloads('0.1.0', uploaded), []);
+		assert.deepEqual(
+			missingDownloads('0.1.0', uploaded.filter((name) => !name.endsWith('.dmg'))),
+			['Markpad.Live_0.1.0_universal.dmg'],
+		);
 	});
 });
 
