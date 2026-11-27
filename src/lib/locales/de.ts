@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Blendet Tableiste, Statusleiste, Zeilennummern, Minimap, Gliederung und Hervorhebung der aktuellen Zeile aus',
         focusModeHint: 'Blendet den Text außerhalb des aktuellen Absatzes ab',
         typewriterModeHint: 'Hält die aktuelle Zeile in der Mitte des Editors',
+        spellcheck: 'Rechtschreibprüfung',
         linksOpenInNewTab: 'Links in neuem Tab öffnen',
         showTableOfContents: 'Inhaltsverzeichnis anzeigen',
         zenMode: 'Zen-Modus',

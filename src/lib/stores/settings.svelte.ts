@@ -489,6 +489,8 @@ export class SettingsStore {
 	typewriterMode = $state(false);
 	/** Dims the editor outside the paragraph the cursor is in (#819). Independent of zen mode. */
 	focusMode = $state(false);
+	/** 편집기의 브라우저 맞춤법 검사. 기본은 꺼짐: 코드·영문 혼용 Markdown에 빨간 밑줄이 과하게 그어진다. */
+	spellcheck = $state(false);
 	showToc = $state(false);
 	preZenState = $state<PreZenState | null>(null);
 	occurrencesHighlight = $state(false);
@@ -951,6 +953,7 @@ export function createSettingsPersistence(): PersistedSetting<SettingsStore>[] {
 		booleanSetting('editor.zenMode', (s) => s.zenMode, (s, v) => { s.zenMode = v; }),
 		booleanSetting('editor.typewriterMode', (s) => s.typewriterMode, (s, v) => { s.typewriterMode = v; }),
 		booleanSetting('editor.focusMode', (s) => s.focusMode, (s, v) => { s.focusMode = v; }),
+		booleanSetting('editor.spellcheck', (s) => s.spellcheck, (s, v) => { s.spellcheck = v; }),
 		booleanSetting('editor.occurrencesHighlight', (s) => s.occurrencesHighlight, (s, v) => { s.occurrencesHighlight = v; }),
 		booleanSetting('preview.occurrencesHighlight', (s) => s.previewOccurrences, (s, v) => { s.previewOccurrences = v; }),
 		booleanSetting('preview.annotations', (s) => s.previewAnnotations, (s, v) => { s.previewAnnotations = v; }),

@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Menyembunyikan bilah tab, bilah status, nomor baris, minimap, kerangka, dan sorotan baris saat ini',
         focusModeHint: 'Meredupkan teks di luar paragraf saat ini',
         typewriterModeHint: 'Menjaga baris saat ini di tengah editor',
+        spellcheck: 'Pemeriksa ejaan',
         linksOpenInNewTab: 'Buka Tautan di Tab Baru',
         showTableOfContents: 'Tampilkan Daftar Isi',
         zenMode: 'Mode Zen',

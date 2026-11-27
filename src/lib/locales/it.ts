@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Nasconde barra delle schede, barra di stato, numeri riga, minimappa, struttura ed evidenziazione della riga corrente',
         focusModeHint: 'Attenua il testo fuori dal paragrafo corrente',
         typewriterModeHint: 'Mantiene la riga corrente al centro dell’editor',
+        spellcheck: 'Controllo ortografico',
         linksOpenInNewTab: 'Apri i link in una nuova scheda',
         showTableOfContents: 'Mostra indice',
         zenMode: 'Modalità Zen',

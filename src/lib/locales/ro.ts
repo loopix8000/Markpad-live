@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Ascunde bara de file, bara de stare, numerele liniilor, miniharta, structura și evidențierea liniei curente',
         focusModeHint: 'Estompează textul din afara paragrafului curent',
         typewriterModeHint: 'Păstrează linia curentă în mijlocul editorului',
+        spellcheck: 'Verificare ortografică',
         linksOpenInNewTab: 'Deschide linkurile într-o filă nouă',
         showTableOfContents: 'Afișare cuprins',
         zenMode: 'Mod Zen',

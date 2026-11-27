@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Elrejti a lapsávot, az állapotsort, a sorszámokat, a minitérképet, a vázlatot és az aktuális sor kiemelését',
         focusModeHint: 'Elhalványítja az aktuális bekezdésen kívüli szöveget',
         typewriterModeHint: 'Az aktuális sort a szerkesztő közepén tartja',
+        spellcheck: 'Helyesírás-ellenőrzés',
         linksOpenInNewTab: 'Hivatkozások megnyitása új lapon',
         showTableOfContents: 'Tartalomjegyzék megjelenítése',
         zenMode: 'Zen mód',

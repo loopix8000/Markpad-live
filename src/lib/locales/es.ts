@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Oculta la barra de pestañas, la barra de estado, los números de línea, el minimapa, el esquema y el resaltado de la línea actual',
         focusModeHint: 'Atenúa el texto fuera del párrafo actual',
         typewriterModeHint: 'Mantiene la línea actual en el centro del editor',
+        spellcheck: 'Corrector ortográfico',
         linksOpenInNewTab: 'Abrir los enlaces en una pestaña nueva',
         showTableOfContents: 'Mostrar tabla de contenidos',
         zenMode: 'Modo Zen',

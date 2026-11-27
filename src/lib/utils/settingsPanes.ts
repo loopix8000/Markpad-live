@@ -202,6 +202,7 @@ export const SETTINGS_PANES: Record<'editor' | 'preview' | 'appearance' | 'files
 			},
 			{ kind: 'toggle', id: 'appearance-focus-mode', labelKey: 'settings.focusMode', hintKey: 'settings.focusModeHint', key: 'focusMode' },
 			{ kind: 'toggle', id: 'appearance-typewriter-mode', labelKey: 'settings.typewriterMode', hintKey: 'settings.typewriterModeHint', key: 'typewriterMode' },
+			{ kind: 'toggle', id: 'appearance-spellcheck', labelKey: 'settings.spellcheck', key: 'spellcheck' },
 		],
 	},
 	files: {

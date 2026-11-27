@@ -114,7 +114,7 @@ export class LiveEditor {
 					if (!$from.parent.isTextblock) return null;
 					return DecorationSet.create(state.doc, [Decoration.node($from.before(), $from.after(), { class: 'live-current' })]);
 				},
-				attributes: { 'aria-label': 'Markdown', 'aria-multiline': 'true', spellcheck: 'true' },
+				attributes: { 'aria-label': 'Markdown', 'aria-multiline': 'true' },
 				handleKeyDown: (view, event) => {
 					if (event.isComposing || view.composing || event.keyCode === 229 || event.getModifierState('AltGraph')) return false;
 					const mod = event.ctrlKey || event.metaKey;

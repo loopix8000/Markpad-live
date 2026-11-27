@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Oculta a barra de separadores, a barra de estado, os números de linha, o minimapa, o índice e o destaque da linha atual',
         focusModeHint: 'Esbate o texto fora do parágrafo atual',
         typewriterModeHint: 'Mantém a linha atual no meio do editor',
+        spellcheck: 'Verificação ortográfica',
         linksOpenInNewTab: 'Abrir as ligações num novo separador',
         showTableOfContents: 'Mostrar índice',
         zenMode: 'Modo Zen',
