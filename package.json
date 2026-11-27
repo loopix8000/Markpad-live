@@ -1,6 +1,6 @@
 {
 	"name": "markpad-live",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Live Markdown desktop editor powered by Milkdown.",
 	"type": "module",
 	"imports": {
