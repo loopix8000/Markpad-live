@@ -1891,7 +1891,11 @@ body {
 	content: '';
 	display: block;
 	position: absolute;
-	/* 회전한 체크 표시는 상자 중심보다 아래로 쏠려 보이므로 세로만 조금 올려 가운데에 맞춘다. */
+	/*
+	 * 체크 표시는 오른쪽·아래 테두리만 그린 상자를 45도 돌린 것이라, 긴 획이 오른쪽 아래로
+	 * 기울어 잉크가 상자 중심보다 오른쪽 아래에 놓인다. 그만큼 왼쪽 위로 당겨 잉크의
+	 * 중심을 맞춘다. 가로를 -50%로 두면 0.5px 오른쪽에 놓였고, 이 값은 1~2배 화면에서 0.15px 안이다.
+	 */
 	top: 50%;
 	left: 50%;
 	width: 4px;
@@ -1899,7 +1903,7 @@ body {
 	border: 2px solid white;
 	border-top: none;
 	border-left: none;
-	transform: translate(-50%, -70%) rotate(45deg);
+	transform: translate(-58%, -72%) rotate(45deg);
 }
 
 /*
