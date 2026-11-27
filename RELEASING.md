@@ -31,16 +31,17 @@ Every update is signed, and the app installs only an update whose signature matc
 ## Per release
 
 1. Run `npm run release X.Y.Z` with Rust on PATH. It writes the version to `package.json`, `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock`.
-2. Run the checks in the README, then commit and push to `master`.
-3. Start the **Build and Release** workflow on `master`, from the Actions tab or with:
+2. Add a `## X.Y.Z` section to `CHANGELOG.md` with a short list of what changed for users. It becomes the release notes, above the download table, and the workflow stops if the section is missing.
+3. Run the checks in the README, then commit and push to `master`.
+4. Start the **Build and Release** workflow on `master`, from the Actions tab or with:
 
    ```sh
    gh workflow run build.yml --repo loopix8000/Markpad-live --ref master
    ```
 
    It creates the draft release `vX.Y.Z`, builds and signs each platform, uploads the installers with their `.sig` files, and writes `latest.json` from those signatures. It stops before writing `latest.json` if any platform's signature is missing.
-4. Install the build from the draft and check it. To test the update path, start a previous version and use **Check for updates…** after publishing.
-5. Publish the draft. From that moment installed copies pick up the update.
+5. Install the build from the draft and check it. To test the update path, start a previous version and use **Check for updates…** after publishing.
+6. Publish the draft. From that moment installed copies pick up the update.
 
 ## macOS signing
 

@@ -100,14 +100,15 @@ jobs:
             exit 1
           fi
 
-      - name: Compose the download table
+      - name: Compose the release notes
         id: download_table
-        # 플랫폼별로 받을 파일과 링크를 담은 표. 빌드 전에 만들어지므로, 링크가 실제
-        # 업로드와 맞는지는 generate-update-feed가 빌드 뒤에 확인한다.
+        # CHANGELOG.md의 이 버전 절과, 플랫폼별로 받을 파일과 링크를 담은 표. 절이 없으면
+        # 여기서 멈춘다. 빌드 전에 만들어지므로, 표의 링크가 실제 업로드와 맞는지는
+        # generate-update-feed가 빌드 뒤에 확인한다.
         run: |
           {
             echo 'body<<RELEASE_BODY'
-            node scripts/release-download-table.mjs '${{ steps.get_version.outputs.version }}' "$GITHUB_REPOSITORY"
+            node scripts/release-body.mjs '${{ steps.get_version.outputs.version }}' "$GITHUB_REPOSITORY"
             echo 'RELEASE_BODY'
           } >> "$GITHUB_OUTPUT"
 
@@ -480,7 +481,7 @@ jobs:
       - name: The download table links only uploaded files
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/release-download-table.mjs --check '${{ needs.create-release.outputs.version }}' "$GITHUB_REPOSITORY"
+        run: node scripts/release-body.mjs --check '${{ needs.create-release.outputs.version }}' "$GITHUB_REPOSITORY"
 
       - name: Generate latest.json
         env:

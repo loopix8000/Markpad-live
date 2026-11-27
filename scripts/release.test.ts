@@ -7,7 +7,7 @@ import { describe, test } from 'node:test';
 
 import { parse } from 'yaml';
 
-import { downloadAssets, downloadTable, missingDownloads } from './release-download-table.mjs';
+import { changelogSection, downloadAssets, downloadTable, missingDownloads, releaseBody } from './release-body.mjs';
 import { offsetOf, readSource, sliceBetween } from './sourceTree.js';
 
 describe('the sourceTree helpers', () => {
@@ -89,9 +89,32 @@ describe('release version bump', () => {
 	});
 });
 
-// 릴리스 설명의 다운로드 표. 사람이 받을 파일마다 링크가 하나씩 있고, 링크는 실제로
-// 올라간 파일과 맞아야 한다.
-describe('release download table', () => {
+// 릴리스 설명: CHANGELOG.md의 그 버전 절과 다운로드 표. 사람이 받을 파일마다 링크가
+// 하나씩 있고, 링크는 실제로 올라간 파일과 맞아야 한다.
+describe('release notes', () => {
+	const changelog = '# Changelog\n\nIntro.\n\n## 1.2.3\n\n- Fixed a thing.\n- Added another.\n\n## 1.2.2\n\n- Older change.\n';
+
+	test('the notes are the changes of that version only, above the download table', () => {
+		assert.equal(changelogSection('1.2.3', changelog), '- Fixed a thing.\n- Added another.');
+		assert.equal(changelogSection('1.2.2', changelog), '- Older change.');
+		const body = releaseBody('1.2.3', 'owner/app', changelog);
+		assert.ok(body.startsWith("## What's new\n\n- Fixed a thing.\n- Added another.\n\n## Download"), body);
+		assert.ok(!body.includes('Older change'));
+	});
+
+	test('a version without changelog notes cannot be released', () => {
+		// 설명은 초안을 만들 때 쓰이므로, 여기서 멈춰야 변경 사항 없는 릴리스가 생기지 않는다.
+		assert.throws(() => releaseBody('9.9.9', 'owner/app', changelog), /no "## 9\.9\.9" section/);
+		assert.throws(() => changelogSection('1.0.0', '## 1.0.0\n\n## 0.9.0\n- x'), /is empty/);
+	});
+
+	test('every version released so far has its notes', () => {
+		const current = readSource('CHANGELOG.md');
+		for (const version of ['0.1.0', '0.1.1', '0.1.2', JSON.parse(readSource('package.json')).version]) {
+			assert.ok(changelogSection(version, current));
+		}
+	});
+
 	test('every file a person installs has a link to this release', () => {
 		const table = downloadTable('1.2.3', 'owner/app');
 		for (const name of Object.values(downloadAssets('1.2.3'))) {

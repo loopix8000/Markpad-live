@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 /**
- * 릴리스 설명의 다운로드 표를 만든다. 플랫폼마다 어떤 파일을 받으면 되는지와 그 링크를 담는다.
+ * 릴리스 설명을 만든다. CHANGELOG.md에서 그 버전의 변경 사항을 가져오고, 플랫폼마다 어떤
+ * 파일을 받으면 되는지와 그 링크를 담은 다운로드 표를 붙인다.
  *
- *   node scripts/release-download-table.mjs <version> <owner/repo>          표를 출력한다
- *   node scripts/release-download-table.mjs --check <version> <owner/repo>  표의 파일이 모두 올라왔는지 확인한다
+ *   node scripts/release-body.mjs <version> <owner/repo>          설명을 출력한다
+ *   node scripts/release-body.mjs --check <version> <owner/repo>  표의 파일이 모두 올라왔는지 확인한다
  *
- * 표는 빌드가 끝나기 전, 초안 릴리스를 만들 때 쓰인다. 그래서 파일 이름은 빌드가 내는 이름에서
- * 미리 정해 두고, 빌드가 끝난 뒤 `--check`로 실제 업로드와 맞는지 확인한다.
+ * 설명은 빌드가 끝나기 전, 초안 릴리스를 만들 때 쓰인다. 그래서 파일 이름은 빌드가 내는 이름에서
+ * 미리 정해 두고, 빌드가 끝난 뒤 `--check`로 실제 업로드와 맞는지 확인한다. CHANGELOG.md에
+ * 그 버전의 절이 없으면 실패해서, 변경 사항 없이 릴리스되지 않게 한다.
  */
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 /** 번들 파일 이름의 제품명. GitHub는 업로드한 파일 이름의 공백을 `.`으로 바꾼다. */
@@ -61,6 +64,34 @@ export function downloadTable(version, repo) {
 }
 
 /**
+ * CHANGELOG.md에서 `## <version>` 절의 본문을 꺼낸다. 다음 `## ` 제목 앞까지다.
+ *
+ * @param {string} version
+ * @param {string} changelog
+ */
+export function changelogSection(version, changelog) {
+	const lines = changelog.replace(/\r\n/g, '\n').split('\n');
+	const start = lines.findIndex((line) => line.trim() === `## ${version}`);
+	if (start < 0) throw new Error(`CHANGELOG.md has no "## ${version}" section. Add the release's changes there first.`);
+	const rest = lines.slice(start + 1);
+	const end = rest.findIndex((line) => line.startsWith('## '));
+	const body = (end < 0 ? rest : rest.slice(0, end)).join('\n').trim();
+	if (!body) throw new Error(`The "## ${version}" section of CHANGELOG.md is empty.`);
+	return body;
+}
+
+/**
+ * 변경 사항과 다운로드 표를 합친 릴리스 설명.
+ *
+ * @param {string} version
+ * @param {string} repo `owner/name`
+ * @param {string} changelog CHANGELOG.md의 내용
+ */
+export function releaseBody(version, repo, changelog) {
+	return `## What's new\n\n${changelogSection(version, changelog)}\n\n${downloadTable(version, repo)}`;
+}
+
+/**
  * 표가 가리키는데 릴리스에 없는 파일.
  *
  * @param {string} version
@@ -76,7 +107,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 	const check = args[0] === '--check';
 	const [version, repo] = check ? args.slice(1) : args;
 	if (!version || !repo) {
-		console.error('usage: release-download-table.mjs [--check] <version> <owner/repo>');
+		console.error('usage: release-body.mjs [--check] <version> <owner/repo>');
 		process.exit(2);
 	}
 	if (check) {
@@ -92,6 +123,11 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 		}
 		console.log(`Every file in the download table is attached to v${version}.`);
 	} else {
-		console.log(downloadTable(version, repo));
+		try {
+			console.log(releaseBody(version, repo, readFileSync('CHANGELOG.md', 'utf8')));
+		} catch (error) {
+			console.error(error instanceof Error ? error.message : error);
+			process.exit(1);
+		}
 	}
 }
