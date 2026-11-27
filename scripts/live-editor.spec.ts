@@ -250,3 +250,24 @@ test('live and source surfaces share Markdown while keeping independent editable
 	assert.equal(live.source.text,'## 원문\n\n**강조**');
 	assert.equal(await openLiveEditor('shared','source'),source);
 });
+
+function doubleClickCode(e: LiveEditor, pos: number, target: Element) {
+	const event = new MouseEvent('dblclick');
+	Object.defineProperty(event, 'target', { value: target });
+	return e.view.someProp('handleDoubleClick', f => f(e.view, pos, event));
+}
+
+test('double-clicking inline code selects the whole code span instead of one word', async () => {
+	const e = await edit('dblclick-code', '앞 `/DATA/nfa/assets/css` 뒤');
+	const code = e.view.dom.querySelector('code')!;
+	const start = 3;
+	const end = start + '/DATA/nfa/assets/css'.length;
+	for (const pos of [start, start + 7, end]) {
+		assert.ok(doubleClickCode(e, pos, code), String(pos));
+		assert.deepEqual([e.view.state.selection.from, e.view.state.selection.to], [start, end]);
+		assert.equal(e.selectedMarkdown(), '`/DATA/nfa/assets/css`');
+	}
+	e.select(1);
+	assert.ok(!doubleClickCode(e, 1, e.view.dom.querySelector('p')!));
+	assert.equal(e.view.state.selection.from, 1);
+});

@@ -16,6 +16,7 @@ import { SHORTCUTS } from '../utils/shortcuts.js';
 import { localSrc } from '../utils/markdown.js';
 import { closeCodeFence, editableFenceSchema, openCodeFence } from './codeFence.js';
 import { frontmatter, math, protectSource, sourceBlock, SourceDocument } from './source.js';
+import { markRangeAt } from './markRange.js';
 import { trackLiveTab } from './tabs.js';
 
 type Host = {
@@ -163,6 +164,15 @@ export class LiveEditor {
 					if (node.type.name !== 'image') return false;
 					this.view.dispatch(this.view.state.tr.setSelection(NodeSelection.create(this.view.state.doc, nodePos)));
 					this.host?.command('fmt-image');
+					return true;
+				},
+				// 인라인 코드를 더블클릭하면 단어 대신 코드 전체를 선택한다.
+				handleDoubleClick: (view, pos, event) => {
+					const code = view.state.schema.marks.inlineCode;
+					if (!code || !(event.target instanceof Element) || !event.target.closest('code')) return false;
+					const range = markRangeAt(view.state.doc, pos, code);
+					if (!range) return false;
+					view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, range.from, range.to)));
 					return true;
 				},
 			});
