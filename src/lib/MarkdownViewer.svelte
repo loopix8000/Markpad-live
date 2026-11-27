@@ -406,6 +406,11 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 		scrollPreviewToSyncPosition(line);
 	});
 	let layout = $derived(previewLayout(settings, { isEditing, isSplit, viewerWidth, zoom: contentZoom }));
+	const editorMaxWidth = $derived.by(() => {
+		if (isMarkdown && settings.previewFullWidth) return '100%';
+		if (settings.wordWrap === 'wordWrapColumn') return `${settings.editorMaxWidth}ch`;
+		return isMarkdown ? layout.maxWidthCss : '100%';
+	});
 	let isOverhanging = $derived(layout.isOverhanging);
 
 	/**
@@ -2894,6 +2899,7 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 	{#if tabManager.activeTab && !showsHomeScreen(() => tabManager.activeTab, showHome)}
 			<div
 				class="markdown-container"
+				style:--live-width={editorMaxWidth}
 				style="--code-font: {previewAppearance.codeFontFamily}; --code-font-size: {previewAppearance.codeFontSize * contentZoom}px; --highlight-color: {previewAppearance.highlightColor};"
 				onwheel={handleWheel}
 				role="presentation">

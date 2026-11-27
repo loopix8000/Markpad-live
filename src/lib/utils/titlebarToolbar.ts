@@ -28,7 +28,7 @@ const TITLEBAR_TOOLBAR_ACTIONS: TitlebarToolbarAction[] = [
 	{ id: 'forward', labelKey: 'menu.forward', fallbackName: 'Forward', sample: '>', defaultPlacement: 'bar' },
 	{ id: 'reload', labelKey: 'tooltip.reloadFromDisk', fallbackName: 'Reload from Disk', sample: 'R', defaultPlacement: 'bar', hintKey: 'settings.toolbarDiskFileOnly' },
 	{ id: 'toc', labelKey: 'settings.toolbarToc', fallbackName: 'Show/Hide Table of Contents', sample: 'T', defaultPlacement: 'menu' },
-	{ id: 'fullWidth', labelKey: 'menu.fullWidth', fallbackName: 'Full Width', sample: 'W', defaultPlacement: 'bar', hintKey: 'settings.preview' },
+	{ id: 'fullWidth', labelKey: 'menu.fullWidth', fallbackName: 'Full Width', sample: 'W', defaultPlacement: 'bar' },
 	{ id: 'live', labelKey: 'menu.autoReload', fallbackName: 'Auto-Reload', sample: 'L', defaultPlacement: 'bar', hintKey: 'settings.toolbarDiskFileOnly' },
 	{ id: 'sync', labelKey: 'menu.syncScroll', fallbackName: 'Sync Scroll', sample: 'S', defaultPlacement: 'bar', hintKey: 'settings.toolbarSplitOnly' },
 	{ id: 'editorToolbar', labelKey: 'tooltip.editorToolbar', fallbackName: 'Editor Toolbar', sample: 'TB', defaultPlacement: 'bar', hintKey: 'settings.toolbarEditOrSplit' },
@@ -199,8 +199,7 @@ export function visibleTitlebarActionIds(context: TitlebarActionContext): string
 			: true;
 
 		if (isMarkdown) {
-			list.push('toc');
-			if (!context.isEditing && !context.isSplit) list.push('fullWidth');
+			list.push('toc', 'fullWidth');
 			// Every mode that has a file on disk, which is every mode an
 			// external writer can surprise. The chord answers the same
 			// question the same way — see the note above.

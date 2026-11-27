@@ -223,6 +223,8 @@ describe('title bar toolbar', () => {
 		const view = visibleTitlebarActionIds(documentContext);
 		const edit = visibleTitlebarActionIds({ ...documentContext, isEditing: true });
 		const split = visibleTitlebarActionIds({ ...documentContext, isSplit: true });
+		const source = visibleTitlebarActionIds({ ...documentContext, isEditing: true, sourceOnly: true });
+		assert.ok([view, edit, split, source].every((ids) => ids.includes('fullWidth')));
 
 		// Find stays in every mode: in pure edit it opens Monaco's find, as Mod+F does.
 		assert.deepEqual([view, edit, split].map((ids) => ids.includes('find')), [true, true, true]);

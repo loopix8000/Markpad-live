@@ -835,7 +835,8 @@
 						class="title-action-btn {isFullWidth ? 'active' : ''}"
 						onclick={() => ontoggleFullWidth?.()}
 						aria-label={t('tooltip.toggleFullWidth', currentLanguage)}
-											onmouseenter={(e) => showTooltip(e, t('tooltip.fullWidth', currentLanguage))}
+						aria-pressed={isFullWidth}
+						onmouseenter={(e) => showTooltip(e, t('tooltip.fullWidth', currentLanguage))}
 						onmousedown={(e) => e.preventDefault()}
 						onmouseleave={hideTooltip}
 						transition:fly={{ x: 10, duration: 200 }}>

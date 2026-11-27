@@ -183,8 +183,8 @@
 	.tab {
 		display: flex;
 		align-items: center;
-		height: 28px;
-		min-width: 100px;
+		height: 26px;
+		min-width: 88px;
 		max-width: 200px;
 		padding: 0;
 		margin: 0;
@@ -194,7 +194,7 @@
 		position: relative;
 		font-size: 12px;
 		font-family: var(--win-font, 'Segoe UI', sans-serif);
-		border-radius: 8px;
+		border-radius: var(--tab-radius, 4px);
 		transition:
 			background-color 0.25s cubic-bezier(0.05, 0.95, 0.05, 0.95),
 			color 0.25s cubic-bezier(0.05, 0.95, 0.05, 0.95);
@@ -242,6 +242,11 @@
 		text-overflow: ellipsis;
 	}
 
+	.tab:not(.vertical) .tab-content-btn {
+		padding-inline: 8px 2px;
+		line-height: 16px;
+	}
+
 	/* While the marquee runs, the ellipsis gives way to the sliding text. */
 	.tab-label.marquee {
 		text-overflow: clip;
@@ -268,6 +273,10 @@
 		align-items: center;
 		padding-right: 4px;
 		opacity: 0;
+	}
+
+	.tab:not(.vertical) .tab-actions {
+		padding-right: 2px;
 	}
 
 	.tab:hover .tab-actions,

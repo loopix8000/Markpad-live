@@ -281,6 +281,7 @@
 
 <style>
 	.tab-list-wrapper {
+		--tab-radius: 4px;
 		display: flex;
 		align-items: center;
 		height: 100%;
@@ -350,7 +351,7 @@
 
 	.tab-item-wrapper {
 		transition: opacity 0.1s;
-		border-radius: 8px;
+		border-radius: var(--tab-radius);
 	}
 
 	/* "Already open here" (#1087): a short accent wash behind the tab. */
@@ -381,8 +382,15 @@
 	   tab instead of dragging the window (#823). Only the top strip: the one
 	   below is not an edge and stays drag region, as do restored windows. */
 	:global(.custom-title-bar.maximized) .tab-item-wrapper {
-		align-self: flex-start;
-		padding-top: 4px; /* (36px bar - 28px tab) / 2 */
+		position: relative;
+	}
+
+	:global(.custom-title-bar.maximized) .tab-item-wrapper::before {
+		content: '';
+		position: absolute;
+		bottom: 100%;
+		inset-inline: 0;
+		height: 100%;
 	}
 
 	.tab-item-wrapper.drag-opacity {
@@ -392,6 +400,7 @@
 
 	/* Tab column (#884): the same list, stacked, with the new-tab button underneath. */
 	.tab-list-wrapper.vertical {
+		--tab-radius: 8px;
 		flex-direction: column;
 		align-items: stretch;
 		height: 100%;

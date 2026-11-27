@@ -269,8 +269,7 @@
 <div class="live-scroll" bind:this={pane} onscroll={() => { const p = scrollSyncPosition(); if (p && !following) onscrollsync(p); }}>
 	<div class="live-body" class:markdown-body={!sourceMode} class:source-body={sourceMode} class:focused={settings.focusMode} class:nowrap={settings.wordWrap === 'off'} bind:this={host}
 		style:--live-font={fontFamilyValue(settings.editorFont, sourceMode ? 'monospace' : 'sans-serif')}
-		style:--live-size={settings.editorFontSize * zoomLevel / 100 + 'px'}
-		style:--live-width={settings.wordWrap === 'wordWrapColumn' ? settings.editorMaxWidth + 'ch' : '100%'}></div>
+		style:--live-size={settings.editorFontSize * zoomLevel / 100 + 'px'}></div>
 	{#if failed}<pre>{value}</pre>{/if}
 </div>
 {#if drag}<div class="drop-caret" style:left={drag.x+'px'} style:top={drag.y+'px'} style:height={drag.height+'px'}></div>{/if}
@@ -311,7 +310,7 @@
 	}
 	.live-body :global(.ProseMirror) { min-height: 65vh; overflow-wrap: anywhere; outline: none; }
 	.live-body :global(.ProseMirror:focus-visible) { caret-color: var(--color-accent-fg); }
-	.live-body :global(.live-task) { display: flex; gap: .5em; align-items: baseline; list-style: none; }
+	.live-body :global(.live-task) { display: flex; gap: .5em; align-items: flex-start; list-style: none; }
 	.live-body :global(.live-task > div) { flex: 1; min-width: 0; }
 	.focused :global(.ProseMirror :is(p,h1,h2,h3,h4,h5,h6,pre):not(.live-current)) { opacity: .5; }
 	.nowrap :global(.ProseMirror p) { white-space: pre; }
