@@ -121,7 +121,8 @@ jobs:
           name: Markpad Live v${{ steps.get_version.outputs.version }}
           draft: true
           prerelease: false
-          generate_release_notes: true
+          # 설명은 다운로드 표만 둔다. 자동 노트는 커밋 작성자와 PR 목록을 덧붙일 뿐이다.
+          generate_release_notes: false
           body: ${{ steps.download_table.outputs.body }}
 
   build:
