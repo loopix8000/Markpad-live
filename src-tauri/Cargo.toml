@@ -1,6 +1,6 @@
 [package]
 name = "markpad-live"
-version = "0.1.0"
+version = "0.1.1"
 description = "Live Markdown desktop editor"
 authors = ["Alec Ames <dev@alecames.com>"]
 license = "BSD-3-Clause"
