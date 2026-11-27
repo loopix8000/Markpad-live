@@ -108,6 +108,10 @@
 		void [value, language, readOnly, path, sourceMode];
 		if (instance) untrack(() => sync(instance));
 	});
+	// 맞춤법 검사는 설정을 따른다. ProseMirror의 attributes 속성에 두지 않아 덮어쓰이지 않는다.
+	$effect(() => {
+		live?.view.dom.setAttribute('spellcheck', String(settings.spellcheck));
+	});
 	$effect(() => {
 		const source = value;
 		if (!settings.statusBar || !settings.wordCount) return;

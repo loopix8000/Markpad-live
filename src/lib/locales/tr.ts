@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Sekme çubuğunu, durum çubuğunu, satır numaralarını, mini haritayı, ana hattı ve geçerli satır vurgusunu gizler',
         focusModeHint: 'Geçerli paragrafın dışındaki metni soluklaştırır',
         typewriterModeHint: 'Geçerli satırı düzenleyicinin ortasında tutar',
+        spellcheck: 'Yazım denetimi',
         linksOpenInNewTab: 'Bağlantıları yeni sekmede aç',
         showTableOfContents: 'İçindekileri Göster',
         zenMode: 'Zen Modu',

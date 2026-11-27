@@ -87,6 +87,7 @@ export default {
         zenModeHint: '隱藏標籤列、狀態列、行號、縮圖、目錄和目前行醒目提示',
         focusModeHint: '目前段落以外的文字變暗',
         typewriterModeHint: '游標所在行保持在編輯器中間',
+        spellcheck: '拼字檢查',
         linksOpenInNewTab: '在新分頁中開啟連結',
         showTableOfContents: '顯示目錄',
         zenMode: '專注模式',

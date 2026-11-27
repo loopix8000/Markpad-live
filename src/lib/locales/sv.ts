@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Döljer flikfält, statusfält, radnummer, minikarta, disposition och markering av aktuell rad',
         focusModeHint: 'Tonar ned texten utanför det aktuella stycket',
         typewriterModeHint: 'Håller den aktuella raden i mitten av redigeraren',
+        spellcheck: 'Stavningskontroll',
         linksOpenInNewTab: 'Öppna länkar i en ny flik',
         showTableOfContents: 'Visa innehållsförteckning',
         zenMode: 'Zen-läge',

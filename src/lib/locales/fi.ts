@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Piilottaa välilehtipalkin, tilarivin, rivinumerot, minikartan, jäsennyksen ja nykyisen rivin korostuksen',
         focusModeHint: 'Himmentää nykyisen kappaleen ulkopuolisen tekstin',
         typewriterModeHint: 'Pitää nykyisen rivin editorin keskellä',
+        spellcheck: 'Oikeinkirjoituksen tarkistus',
         linksOpenInNewTab: 'Avaa linkit uudessa välilehdessä',
         showTableOfContents: 'Näytä sisällysluettelo',
         zenMode: 'Zen-tila',

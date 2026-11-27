@@ -74,6 +74,7 @@ export default {
         zenModeHint: '탭 표시줄, 상태 표시줄, 줄 번호, 미니맵, 목차, 현재 줄 강조 표시를 숨깁니다',
         focusModeHint: '현재 단락 밖의 텍스트를 흐리게 표시합니다',
         typewriterModeHint: '커서가 있는 줄을 편집기 가운데에 유지합니다',
+        spellcheck: '맞춤법 검사',
         linksOpenInNewTab: '링크를 새 탭에서 열기',
         showTableOfContents: '목차 표시',
         zenMode: '젠 모드',

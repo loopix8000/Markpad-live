@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Skjuler fanelinje, statuslinje, linjenumre, minikart, disposisjon og utheving av gjeldende linje',
         focusModeHint: 'Demper teksten utenfor gjeldende avsnitt',
         typewriterModeHint: 'Holder gjeldende linje midt i redigeringsprogrammet',
+        spellcheck: 'Stavekontroll',
         linksOpenInNewTab: 'Åpne lenker i en ny fane',
         showTableOfContents: 'Vis innholdsfortegnelse',
         zenMode: 'Zen-modus',

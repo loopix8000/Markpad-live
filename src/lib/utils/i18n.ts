@@ -154,6 +154,7 @@ const en = {
         zenModeHint: 'Hides the tab bar, status bar, line numbers, minimap, outline and current-line highlight',
         focusModeHint: 'Dims the text outside the paragraph you are in',
         typewriterModeHint: 'Keeps the line you are on in the middle of the editor',
+        spellcheck: 'Spell Check',
         linksOpenInNewTab: 'Open Links in a New Tab',
         showTableOfContents: 'Show Table of Contents',
         zenMode: 'Zen Mode',

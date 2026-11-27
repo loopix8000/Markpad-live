@@ -76,6 +76,7 @@ export default {
         zenModeHint: '隐藏标签栏、状态栏、行号、小地图、目录和当前行高亮',
         focusModeHint: '当前段落以外的文字变暗',
         typewriterModeHint: '光标所在行保持在编辑器中间',
+        spellcheck: '拼写检查',
         linksOpenInNewTab: '在新标签页中打开链接',
         showTableOfContents: '显示目录',
         zenMode: '禅模式',

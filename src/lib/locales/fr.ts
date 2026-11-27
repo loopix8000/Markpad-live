@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Masque la barre d’onglets, la barre d’état, les numéros de ligne, la minimap, le plan et la surbrillance de la ligne courante',
         focusModeHint: 'Atténue le texte en dehors du paragraphe en cours',
         typewriterModeHint: 'Garde la ligne en cours au milieu de l’éditeur',
+        spellcheck: 'Vérification orthographique',
         linksOpenInNewTab: 'Ouvrir les liens dans un nouvel onglet',
         showTableOfContents: 'Afficher la table des matières',
         zenMode: 'Mode Zen',

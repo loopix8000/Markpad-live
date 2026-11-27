@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Skryje lištu karet, stavový řádek, čísla řádků, minimapu, osnovu a zvýraznění aktuálního řádku',
         focusModeHint: 'Ztlumí text mimo aktuální odstavec',
         typewriterModeHint: 'Udržuje aktuální řádek uprostřed editoru',
+        spellcheck: 'Kontrola pravopisu',
         linksOpenInNewTab: 'Otevírat odkazy v nové kartě',
         showTableOfContents: 'Zobrazit obsah',
         zenMode: 'Režim Zen',

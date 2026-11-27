@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Oculta a barra de abas, a barra de status, os números de linha, o minimapa, o sumário e o destaque da linha atual',
         focusModeHint: 'Esmaece o texto fora do parágrafo atual',
         typewriterModeHint: 'Mantém a linha atual no meio do editor',
+        spellcheck: 'Verificação ortográfica',
         linksOpenInNewTab: 'Abrir links em uma nova aba',
         showTableOfContents: 'Mostrar tabela de conteúdos',
         zenMode: 'Modo Zen',

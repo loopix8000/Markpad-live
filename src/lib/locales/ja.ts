@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'タブバー、ステータスバー、行番号、ミニマップ、目次、現在行のハイライトを隠します',
         focusModeHint: '現在の段落以外のテキストを暗くします',
         typewriterModeHint: 'カーソルのある行をエディターの中央に保ちます',
+        spellcheck: 'スペルチェック',
         linksOpenInNewTab: 'リンクを新しいタブで開く',
         showTableOfContents: '目次を表示',
         zenMode: '禅モード',

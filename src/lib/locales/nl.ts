@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Verbergt de tabbladbalk, statusbalk, regelnummers, minimap, overzicht en markering van de huidige regel',
         focusModeHint: 'Dimt de tekst buiten de huidige alinea',
         typewriterModeHint: 'Houdt de huidige regel in het midden van de editor',
+        spellcheck: 'Spellingcontrole',
         linksOpenInNewTab: 'Links in een nieuw tabblad openen',
         showTableOfContents: 'Toon inhoudsopgave',
         zenMode: 'Zen-modus',

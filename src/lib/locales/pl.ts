@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Ukrywa pasek kart, pasek stanu, numery linii, minimapę, konspekt i wyróżnienie bieżącej linii',
         focusModeHint: 'Przyciemnia tekst poza bieżącym akapitem',
         typewriterModeHint: 'Utrzymuje bieżący wiersz na środku edytora',
+        spellcheck: 'Sprawdzanie pisowni',
         linksOpenInNewTab: 'Otwieraj linki w nowej karcie',
         showTableOfContents: 'Pokaż spis treści',
         zenMode: 'Tryb Zen',

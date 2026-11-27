@@ -74,6 +74,7 @@ export default {
         zenModeHint: 'Ẩn thanh tab, thanh trạng thái, số dòng, bản đồ thu nhỏ, mục lục và tô sáng dòng hiện tại',
         focusModeHint: 'Làm mờ văn bản ngoài đoạn hiện tại',
         typewriterModeHint: 'Giữ dòng hiện tại ở giữa trình soạn thảo',
+        spellcheck: 'Kiểm tra chính tả',
         linksOpenInNewTab: 'Mở liên kết trong tab mới',
         showTableOfContents: 'Hiển thị mục lục',
         zenMode: 'Chế độ Zen',
