@@ -47,13 +47,13 @@
         ],
         "mimeType": "text/markdown",
         "name": "MarkpadLive.Markdown",
-        "description": "Opens Markdown files with Markpad Live",
+        "description": "Markdown",
         "role": "Editor"
       },
       {
         "ext": ["mdown", "mkd"],
         "name": "MarkpadLive.Markdown",
-        "description": "Opens Markdown files with Markpad Live",
+        "description": "Markdown",
         "role": "Editor"
       }
     ],
