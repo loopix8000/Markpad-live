@@ -10,6 +10,8 @@ on:
   push:
     branches:
       - master
+  # 워크플로를 처음 켰을 때처럼 이미 지나간 커밋을 다시 검사할 때 쓴다.
+  workflow_dispatch:
 
 # A pull request branch gets pushed to repeatedly, and every push queued
 # another full run of this suite while the previous revision was still being
