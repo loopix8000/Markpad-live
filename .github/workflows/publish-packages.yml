@@ -42,7 +42,10 @@ env:
   TAG: ${{ github.event.release.tag_name || inputs.tag }}
 
 jobs:
+  # 이 포크는 아직 Chocolatey·Snap Store 자격 증명과 패키지 이름이 없다. 저장소 변수
+  # PUBLISH_PACKAGES를 'true'로 두기 전까지 두 잡은 실패하지 않고 건너뛴다.
   chocolatey:
+    if: vars.PUBLISH_PACKAGES == 'true'
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
@@ -125,6 +128,7 @@ jobs:
           choco push "markpad-live.${VERSION}.nupkg" --source https://push.chocolatey.org/
 
   snap:
+    if: vars.PUBLISH_PACKAGES == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:

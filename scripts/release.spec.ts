@@ -14,19 +14,36 @@ import type { TranslationKeyIn } from '../src/lib/utils/i18n.js';
 const { log, windows, updater } = vi.hoisted(() => ({
 	log: [] as string[],
 	windows: [{ label: 'main' }],
-	updater: { selfUpdateSupported: true, checks: 0 },
+	updater: {
+		selfUpdateSupported: true,
+		checks: 0,
+		version: '2.7.7',
+		result: 'update' as 'update' | 'none' | 'fail',
+		/** `claim_update_watch`의 대답: 이 창이 자동 확인을 맡는지. */
+		watch: true,
+		claims: 0,
+	},
 }));
 
 vi.mock('@tauri-apps/api/core', () => ({
-	invoke: async (cmd: string) =>
-		cmd === 'list_viewer_windows' ? windows : cmd === 'self_update_supported' ? updater.selfUpdateSupported : true,
+	invoke: async (cmd: string) => {
+		if (cmd === 'list_viewer_windows') return windows;
+		if (cmd === 'self_update_supported') return updater.selfUpdateSupported;
+		if (cmd === 'claim_update_watch') {
+			updater.claims += 1;
+			return updater.watch;
+		}
+		return true;
+	},
 }));
 vi.mock('@tauri-apps/api/window', () => ({ getCurrentWindow: () => ({ label: 'main' }) }));
 vi.mock('@tauri-apps/api/app', () => ({ getVersion: async () => '2.7.6' }));
 vi.mock('@tauri-apps/plugin-updater', () => ({
 	check: async () => {
 		updater.checks += 1;
-		return { version: '2.7.7', body: '', downloadAndInstall: async () => void log.push('install') };
+		if (updater.result === 'fail') throw new Error('offline');
+		if (updater.result === 'none') return null;
+		return { version: updater.version, body: '', downloadAndInstall: async () => void log.push('install') };
 	},
 }));
 vi.mock('@tauri-apps/plugin-process', () => ({
@@ -38,7 +55,7 @@ vi.mock('@tauri-apps/plugin-process', () => ({
 	},
 }));
 
-const { updateStore } = await import('../src/lib/stores/update.svelte.js');
+const { updateStore, AUTO_CHECK_DELAY_MS, AUTO_CHECK_INTERVAL_MS } = await import('../src/lib/stores/update.svelte.js');
 const { default: UpdateDialog } = await import('../src/lib/components/UpdateDialog.svelte');
 const { settings } = await import('../src/lib/stores/settings.svelte.js');
 const { t } = await import('../src/lib/utils/i18n.js');
@@ -121,6 +138,105 @@ describe('package-managed installs', () => {
 		await updateStore.runCheck();
 		assert.equal(updateStore.phase, 'available', 'a self-updating install still checks');
 		assert.equal(updater.checks, 1);
+	});
+});
+
+describe('automatic update checks', () => {
+	// 메뉴에서 직접 확인하지 않아도, 새 버전이 게시되면 시작 창이 알아서 대화상자를 띄운다.
+	function reset(result: typeof updater.result, version = updater.version) {
+		updateStore.stopAutoCheck();
+		updateStore.close();
+		updater.result = result;
+		updater.version = version;
+		updater.checks = 0;
+	}
+
+	test('a background check opens the dialog only when a new version is out', async () => {
+		try {
+			for (const result of ['none', 'fail'] as const) {
+				reset(result);
+				await updateStore.checkInBackground();
+				assert.equal(updateStore.show, false, `${result}: nothing is shown`);
+				assert.equal(updateStore.phase, 'idle', `${result}: and nothing is left behind`);
+				assert.equal(updater.checks, 1);
+			}
+
+			reset('update', '3.0.0');
+			await updateStore.checkInBackground();
+			assert.equal(updateStore.show, true);
+			assert.equal(updateStore.phase, 'available');
+			assert.equal(updateStore.latest, '3.0.0');
+		} finally {
+			reset('update', '2.7.7');
+		}
+	});
+
+	test('a version closed once is not offered again by the background check, a newer one is', async () => {
+		try {
+			reset('update', '3.1.0');
+			await updateStore.checkInBackground();
+			assert.equal(updateStore.show, true);
+			updateStore.close();
+
+			await updateStore.checkInBackground();
+			assert.equal(updateStore.show, false, 'the same version stays closed');
+			assert.equal(updateStore.phase, 'idle');
+
+			updater.version = '3.1.1';
+			await updateStore.checkInBackground();
+			assert.equal(updateStore.show, true, 'a newer version is offered');
+			assert.equal(updateStore.latest, '3.1.1');
+
+			updateStore.close();
+			await updateStore.openDialog();
+			assert.equal(updateStore.phase, 'available', 'asking from the menu still offers a closed version');
+		} finally {
+			reset('update', '2.7.7');
+		}
+	});
+
+	test('a background check leaves an open dialog alone', async () => {
+		try {
+			reset('none');
+			updateStore.show = true;
+			updateStore.phase = 'available';
+			await updateStore.checkInBackground();
+			assert.equal(updater.checks, 0);
+			assert.equal(updateStore.phase, 'available');
+		} finally {
+			reset('update', '2.7.7');
+		}
+	});
+
+	test('only the window that claims the watch checks, once after startup and then on an interval', async () => {
+		vi.useFakeTimers();
+		try {
+			reset('none');
+			updater.watch = false;
+			await updateStore.startAutoCheck();
+			await vi.advanceTimersByTimeAsync(AUTO_CHECK_DELAY_MS);
+			assert.equal(updater.checks, 0, 'a window another one beat to the claim schedules nothing');
+			updateStore.stopAutoCheck();
+
+			updater.watch = true;
+			updater.claims = 0;
+			await Promise.all([updateStore.startAutoCheck(), updateStore.startAutoCheck()]);
+			assert.equal(updater.claims, 1, 'a window asks once, however often it is started');
+			await vi.advanceTimersByTimeAsync(AUTO_CHECK_DELAY_MS - 1);
+			assert.equal(updater.checks, 0, 'not before the startup delay');
+			await vi.advanceTimersByTimeAsync(1);
+			assert.equal(updater.checks, 1, 'one check, however often it was started');
+
+			await vi.advanceTimersByTimeAsync(AUTO_CHECK_INTERVAL_MS);
+			assert.equal(updater.checks, 2, 'and again after the interval');
+
+			updateStore.stopAutoCheck();
+			await vi.advanceTimersByTimeAsync(AUTO_CHECK_INTERVAL_MS);
+			assert.equal(updater.checks, 2, 'stopping ends the schedule');
+		} finally {
+			vi.useRealTimers();
+			reset('update', '2.7.7');
+		}
 	});
 });
 

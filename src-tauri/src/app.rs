@@ -163,6 +163,7 @@ fn bindings_builder() -> tauri_specta::Builder<tauri::Wry> {
             window_runtime::clear_window_state,
             window_runtime::forget_window_state,
             window_runtime::reopen_remembered_windows,
+            window_runtime::claim_update_watch,
             window_runtime::save_unsaved_recovery,
             window_runtime::claim_unsaved_recovery,
             window_runtime::clear_unsaved_recovery,

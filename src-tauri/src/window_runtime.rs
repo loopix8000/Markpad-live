@@ -85,6 +85,8 @@ pub struct AppState {
     quit: Mutex<Option<Vec<String>>>,
     /// Remembered windows are reopened once per launch, by the first caller.
     reopened: AtomicBool,
+    /// 자동 업데이트 확인을 맡은 창이 이미 있는지. 실행당 처음 묻는 창 하나만 맡는다.
+    update_watch_claimed: AtomicBool,
     /// Orphan backups already handed to a window this launch.
     claimed_recovery: Mutex<HashSet<String>>,
     /// The files each window has open, as it last reported them
@@ -162,6 +164,7 @@ impl AppState {
             pinned_tags: Mutex::new(()),
             quit: Mutex::new(None),
             reopened: AtomicBool::new(false),
+            update_watch_claimed: AtomicBool::new(false),
             claimed_recovery: Mutex::new(HashSet::new()),
             open_files: Mutex::new(HashMap::new()),
             launch_routing: Mutex::new(LaunchRouting::default()),
@@ -910,6 +913,16 @@ pub fn forget_window_state(window: tauri::Window, app: AppHandle) -> Result<(), 
 #[specta::specta]
 pub fn clear_window_state(app: AppHandle) -> Result<(), String> {
     clear_window_state_in(&config_dir(&app)?)
+}
+
+/// 자동 업데이트 확인을 이 창이 맡을지 묻는다. 실행당 처음 묻는 창만 `true`를 받는다.
+///
+/// 창은 모두 같은 종류라 프런트엔드가 라벨로 한 창을 고를 수 없다. 그래서 어느 창이
+/// 먼저 묻든 그 창 하나만 확인을 돌리고, 업데이트 대화상자가 창마다 뜨지 않게 한다.
+#[tauri::command]
+#[specta::specta]
+pub fn claim_update_watch(state: State<'_, AppState>) -> bool {
+    !state.update_watch_claimed.swap(true, Ordering::SeqCst)
 }
 
 /// Rebuilds each remembered secondary window under its saved label. Each one
@@ -1882,6 +1895,17 @@ mod tests {
         let expected =
             ["a.md", "b.md"].map(|name| Path::new("/n").join(name).display().to_string());
         assert_eq!(pending, Some(expected.to_vec()));
+    }
+
+    // 창마다 업데이트 대화상자가 뜨지 않도록, 자동 확인은 처음 묻는 창 하나만 맡는다.
+    #[test]
+    #[cfg(not(windows))]
+    fn only_the_first_window_to_ask_watches_for_updates() {
+        let app = tauri::test::mock_app();
+        app.manage(AppState::new());
+        assert!(claim_update_watch(app.state()));
+        assert!(!claim_update_watch(app.state()));
+        assert!(!claim_update_watch(app.state()));
     }
 
     #[test]

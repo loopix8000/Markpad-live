@@ -296,6 +296,13 @@ export const commands = {
 	 *  Async for the reason `create_transfer_window` is.
 	 */
 	reopenRememberedWindows: () => __TAURI_INVOKE<null>("reopen_remembered_windows"),
+	/**
+	 *  자동 업데이트 확인을 이 창이 맡을지 묻는다. 실행당 처음 묻는 창만 `true`를 받는다.
+	 * 
+	 *  창은 모두 같은 종류라 프런트엔드가 라벨로 한 창을 고를 수 없다. 그래서 어느 창이
+	 *  먼저 묻든 그 창 하나만 확인을 돌리고, 업데이트 대화상자가 창마다 뜨지 않게 한다.
+	 */
+	claimUpdateWatch: () => __TAURI_INVOKE<boolean>("claim_update_watch"),
 	saveUnsavedRecovery: (json: string) => __TAURI_INVOKE<null>("save_unsaved_recovery", { json }),
 	/**
 	 *  Whichever window asks first gets the orphans, once: two windows starting

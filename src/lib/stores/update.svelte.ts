@@ -16,6 +16,11 @@ type UpdatePhase =
 
 type ErrorSource = 'check' | 'download' | 'install';
 
+/** 시작 직후에는 창 복원과 파일 열기가 먼저 끝나도록 잠시 기다린다. */
+export const AUTO_CHECK_DELAY_MS = 5_000;
+/** 오래 켜 두는 경우를 위해 주기적으로 다시 확인한다. */
+export const AUTO_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
 class UpdateStore {
 	phase = $state<UpdatePhase>('idle');
 	show = $state(false);
@@ -30,6 +35,10 @@ class UpdateStore {
 	otherWindows = $state<ViewerWindowEntry[]>([]);
 	#pending: Update | null = null;
 	#checkToken = 0;
+	#autoTimer: ReturnType<typeof setTimeout> | null = null;
+	#autoStarted = false;
+	/** 이번 실행에서 사용자가 닫은 버전. 자동 확인은 같은 버전을 다시 띄우지 않는다. */
+	#dismissedVersion = '';
 
 	async openDialog() {
 		if (this.show) return;
@@ -37,8 +46,52 @@ class UpdateStore {
 		await this.runCheck();
 	}
 
+	/**
+	 * 창이 복원을 마친 뒤 부른다. 실행당 처음 묻는 창 하나만 확인을 맡아(`claimUpdateWatch`)
+	 * 잠시 뒤 백그라운드로 확인하고, 이후 주기적으로 다시 확인한다. 다른 창은 아무것도
+	 * 하지 않으므로 대화상자가 창마다 뜨지 않는다.
+	 */
+	async startAutoCheck() {
+		if (this.#autoStarted) return;
+		this.#autoStarted = true;
+		const mine = await commands.claimUpdateWatch().catch(() => false);
+		if (!mine || !this.#autoStarted) return;
+		const tick = async () => {
+			await this.checkInBackground();
+			if (this.#autoTimer) this.#autoTimer = setTimeout(tick, AUTO_CHECK_INTERVAL_MS);
+		};
+		this.#autoTimer = setTimeout(tick, AUTO_CHECK_DELAY_MS);
+	}
+
+	stopAutoCheck() {
+		if (this.#autoTimer) clearTimeout(this.#autoTimer);
+		this.#autoTimer = null;
+		this.#autoStarted = false;
+	}
+
+	/**
+	 * 대화상자를 열지 않고 확인한다. 새 버전이 있을 때만 대화상자를 띄우고,
+	 * 최신이거나 확인에 실패하면 아무것도 보여 주지 않는다.
+	 */
+	async checkInBackground() {
+		// 사용자가 대화상자로 확인하거나 설치하는 중이면 끼어들지 않는다.
+		if (this.show || this.phase !== 'idle') return;
+		await this.runCheck();
+		// 확인하는 사이에 사용자가 직접 대화상자를 열었다면 그 결과를 그대로 보여 준다.
+		if (this.show) return;
+		// runCheck가 phase를 바꾸므로, 위의 비교로 좁혀진 타입을 다시 넓혀 읽는다.
+		const phase = this.phase as UpdatePhase;
+		if (phase === 'available' && this.latest !== this.#dismissedVersion) {
+			this.show = true;
+			return;
+		}
+		this.phase = 'idle';
+		this.#clearResult();
+	}
+
 	close() {
 		if (this.phase === 'downloading') return;
+		if (this.phase === 'available') this.#dismissedVersion = this.latest;
 		this.#checkToken++;
 		this.show = false;
 		this.phase = 'idle';

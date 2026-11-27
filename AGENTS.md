@@ -286,10 +286,9 @@ person's `cargo build` rewrites the line and leaves them a dirty working tree.
 ## Releasing
 
 See [RELEASING.md](RELEASING.md) for the maintainer-facing release runbook
-(keypair generation, GitHub Secrets setup, per-release workflow, troubleshooting).
+(signing identity, GitHub Secrets, per-release workflow).
 
 For agents: never modify `plugins.updater.pubkey` in `src-tauri/tauri.conf.json`.
-That value is set once by the maintainer and shipping a different one breaks
-auto-update for all existing users — they have to manually re-install Markpad.
-The placeholder string in PR-2 is replaced exactly once, by the maintainer,
-right before the first auto-update-capable release.
+The maintainer set Markpad Live's own key on 2026-11-27, and shipping a
+different one breaks auto-update for all existing users — they have to
+manually re-install Markpad Live.

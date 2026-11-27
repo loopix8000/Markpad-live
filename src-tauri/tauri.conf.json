@@ -76,7 +76,7 @@
       "endpoints": [
         "https://github.com/loopix8000/markpad-live/releases/latest/download/latest.json"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEIzMENBRkQ5NjFGRkM4NDcKUldSSHlQOWgyYThNczhINFc4VzVmVEcrS2JGRlRKRWFTVHVTVU9saC9WdFJQZjc0RjZzNmdQRGcK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDlGQTc1RTNENzY3RDYyMzEKUldReFluMTJQVjZubjFYcWFITlZURTRoa004elZ2c0tDbjU1dU9DUWRMNGxNYk4zN3AvM3ZqbGUK",
       "windows": { "installMode": "passive" }
     }
   }

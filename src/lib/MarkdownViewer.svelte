@@ -2573,6 +2573,9 @@ import { followActiveFile } from './sessions/fileWatch.svelte.js';
 			}
 			windowMeta.markReady();
 			if (isDisposed) return;
+			// 처음 묻는 창 하나만 백그라운드로 새 버전을 확인한다. 창 복원이 끝난 뒤라 대화상자가 복원을 가리지 않는다.
+			void updateStore.startAutoCheck();
+			unlisteners.push(() => updateStore.stopAutoCheck());
 
 			const urlParams = new URLSearchParams(window.location.search);
 
