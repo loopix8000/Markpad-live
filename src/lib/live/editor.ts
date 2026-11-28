@@ -16,7 +16,7 @@ import { SHORTCUTS } from '../utils/shortcuts.js';
 import { localSrc } from '../utils/markdown.js';
 import { closeCodeFence, editableFenceSchema, openCodeFence } from './codeFence.js';
 import { frontmatter, math, protectSource, sourceBlock, SourceDocument } from './source.js';
-import { markRangeAt } from './markRange.js';
+import { selectInlineCode } from './markRange.js';
 import { trackLiveTab } from './tabs.js';
 
 type Host = {
@@ -167,14 +167,18 @@ export class LiveEditor {
 					return true;
 				},
 				// 인라인 코드를 더블클릭하면 단어 대신 코드 전체를 선택한다.
-				handleDoubleClick: (view, pos, event) => {
-					const code = view.state.schema.marks.inlineCode;
-					if (!code || !(event.target instanceof Element) || !event.target.closest('code')) return false;
-					const range = markRangeAt(view.state.doc, pos, code);
-					if (!range) return false;
-					view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, range.from, range.to)));
-					return true;
+				// ProseMirror는 두 번째 mousedown에서 단어를 먼저 선택하고 이 처리기는 mouseup에서야 부르므로,
+				// mousedown에서도 ProseMirror의 단어 선택 직후(같은 이벤트 안, 화면을 그리기 전)에 덮어쓴다.
+				handleDOMEvents: {
+					mousedown: (view, event) => {
+						if (event.detail !== 2 || event.button !== 0) return false;
+						const target = event.target;
+						const pos = view.posAtCoords({ left: event.clientX, top: event.clientY });
+						if (pos) queueMicrotask(() => selectInlineCode(view, pos.pos, target));
+						return false;
+					},
 				},
+				handleDoubleClick: (view, pos, event) => selectInlineCode(view, pos, event.target),
 			});
 		});
 		if (this.surface === 'source') {
@@ -267,6 +271,21 @@ export class LiveEditor {
 		if (selection instanceof AllSelection) return this.source.text;
 		if (selection.$from.sameParent(selection.$to) && selection.$from.parent.type.spec.code)
 			return doc.textBetween(selection.from, selection.to);
+		// 인라인 코드 안의 글자만 고른 경우 백틱이나 감싼 목록 표시 없이 그 글자만 복사한다.
+		if (selection.$from.sameParent(selection.$to) && selection.$from.parent.isTextblock) {
+			let code = true;
+			doc.nodesBetween(selection.from, selection.to, node => {
+				if (node.isText && !node.marks.some(mark => mark.type.name === 'inlineCode')) code = false;
+			});
+			if (code) return doc.textBetween(selection.from, selection.to);
+			// 한 블록 안의 일부만 골랐으면 그 블록을 감싼 목록·제목 표시 없이 고른 글자의 Markdown만 복사한다.
+			const paragraph = doc.type.schema.nodes.paragraph;
+			if (paragraph) {
+				const { $from, $to } = selection;
+				const inline = $from.parent.cut($from.parentOffset, $to.parentOffset).content;
+				return this.ctx.get(serializerCtx)(doc.type.create(null, paragraph.create(null, inline))).replace(/\n$/, '');
+			}
+		}
 		return this.ctx.get(serializerCtx)(doc.cut(selection.from, selection.to)).replace(/\n$/, '');
 	}
 	insert(text: string) {

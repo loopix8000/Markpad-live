@@ -265,9 +265,43 @@ test('double-clicking inline code selects the whole code span instead of one wor
 	for (const pos of [start, start + 7, end]) {
 		assert.ok(doubleClickCode(e, pos, code), String(pos));
 		assert.deepEqual([e.view.state.selection.from, e.view.state.selection.to], [start, end]);
-		assert.equal(e.selectedMarkdown(), '`/DATA/nfa/assets/css`');
+		assert.equal(e.selectedMarkdown(), '/DATA/nfa/assets/css');
 	}
 	e.select(1);
 	assert.ok(!doubleClickCode(e, 1, e.view.dom.querySelector('p')!));
 	assert.equal(e.view.state.selection.from, 1);
+});
+
+// 예전에는 두 번째 mousedown에서 ProseMirror가 단어 하나(`complaint`)를 먼저 선택하고,
+// 코드 전체 선택은 mouseup에서야 이뤄져 선택이 한 박자 늦게 넓어졌다.
+test('the second mousedown of a double-click selects the whole inline code before the button is released', async () => {
+	const e = await edit('dblclick-code-down', '앞 `/nfa/communication/complaint/template` 뒤');
+	const code = e.view.dom.querySelector('code')!;
+	const start = 3;
+	const end = start + '/nfa/communication/complaint/template'.length;
+	const inside = start + '/nfa/communication/'.length + 2;
+	vi.spyOn(e.view, 'posAtCoords').mockReturnValue({ pos: inside, inside: -1, affinity: 0 });
+	// jsdom에는 레이아웃이 없어서 ProseMirror가 선택을 화면에 스크롤할 때 쓰는 좌표도 고정한다.
+	vi.spyOn(e.view, 'coordsAtPos').mockReturnValue({ left: 0, right: 0, top: 0, bottom: 0 });
+	for (const detail of [1, 2])
+		code.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0, detail, clientX: 10, clientY: 10 }));
+	await Promise.resolve();
+	assert.deepEqual([e.view.state.selection.from, e.view.state.selection.to], [start, end]);
+	window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+});
+
+// 예전에는 작업 목록 안의 인라인 코드를 골라 복사하면 `* [ ] ` 표시와 백틱까지 함께 복사됐다.
+test('copying text chosen inside inline code copies only that text, without backticks or list markers', async () => {
+	const path = '/DATA/nfa/nfa.war/nfa/communication/complaint/template';
+	const e = await edit('copy-code', `* [ ] \`${path}\` 뒤`);
+	let start = 0;
+	e.view.state.doc.descendants((node, pos) => { if (node.isText && node.text === path) start = pos; });
+	assert.ok(doubleClickCode(e, start + 3, e.view.dom.querySelector('code')!));
+	const write = vi.spyOn(commands, 'clipboardWriteText').mockResolvedValue(null);
+	await writeSelection(e, false);
+	assert.deepEqual(write.mock.calls, [[path]]);
+	e.select(start + 1, start + 5);
+	assert.equal(e.selectedMarkdown(), path.slice(1, 5));
+	e.select(start, start + path.length + 2);
+	assert.equal(e.selectedMarkdown(), `\`${path}\` 뒤`.slice(0, path.length + 4));
 });
