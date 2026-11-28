@@ -11,12 +11,13 @@ import { toggleMark } from '@milkdown/kit/prose/commands';
 import { underline, serializeUnderline } from './underline.js';
 import { addColumnAfter, deleteColumn } from '@milkdown/kit/prose/tables';
 import { Decoration, DecorationSet, type EditorView } from '@milkdown/kit/prose/view';
-import { $node, $view } from '@milkdown/kit/utils';
+import { $node, $prose, $view } from '@milkdown/kit/utils';
 import { SHORTCUTS } from '../utils/shortcuts.js';
 import { localSrc } from '../utils/markdown.js';
 import { closeCodeFence, editableFenceSchema, openCodeFence } from './codeFence.js';
 import { frontmatter, math, protectSource, sourceBlock, SourceDocument } from './source.js';
 import { selectInlineCode } from './markRange.js';
+import { findPlugin, findStatus, refreshFind, stepFind, type FindQuery, type FindStatus } from './find.js';
 import { trackLiveTab } from './tabs.js';
 
 type Host = {
@@ -25,6 +26,8 @@ type Host = {
 	changed(value: string): void;
 	cursor(line: number, column: number): void;
 	command(action: string): void;
+	/** 편집이나 다시 읽기로 찾은 결과가 바뀌었을 때. 찾는 중일 때만 부른다. */
+	found?(status: FindStatus): void;
 };
 type Surface = 'live' | 'source';
 type TabEditors = { panes: Map<Surface, Promise<LiveEditor>>; lastEdit?: { editor: LiveEditor; text: string } };
@@ -64,6 +67,7 @@ export class LiveEditor {
 	scroll = 0;
 	private literal?: boolean;
 	private path = '';
+	private findQuery: FindQuery = { text: '', caseSensitive: false, wholeWord: false };
 
 	constructor(private readonly surface: Surface, private readonly group: TabEditors) {}
 
@@ -189,7 +193,7 @@ export class LiveEditor {
 				.use(commonmark.filter(p => p !== syncHeadingIdPlugin && p !== createCodeBlockInputRule))
 				.use(editableFenceSchema).use(openCodeFence).use(sourceBlock).use(gfm).use(images).use(tasks);
 		}
-		await this.milk.use(history).create();
+		await this.milk.use(history).use($prose(() => findPlugin(() => this.findQuery))).create();
 		this.view = this.ctx.get(editorViewCtx);
 		this.view.setProps({
 			dispatchTransaction: tr => {
@@ -203,6 +207,7 @@ export class LiveEditor {
 					this.host?.changed(text);
 				}
 				if (!next.selection.eq(previous.selection) || tr.docChanged) this.reportCursor();
+				if (tr.docChanged) this.reportFound();
 			},
 		});
 	}
@@ -238,9 +243,11 @@ export class LiveEditor {
 			let tr = state.tr.replace(start, end.a + overlap, target.slice(start, end.b + overlap));
 			if (!tr.doc.eq(target)) tr = state.tr.replaceWith(0, state.doc.content.size, target.content);
 			this.view.updateState(state.apply(tr));
+			this.reportFound();
 			return;
 		}
 		this.view.updateState(EditorState.create({ doc: this.source.doc, plugins: this.view.state.plugins }));
+		this.reportFound();
 	}
 	destroy() { this.host = undefined; return this.milk.destroy(); }
 	reportCursor() {
@@ -301,20 +308,23 @@ export class LiveEditor {
 			this.view.dispatch(tr.replaceSelection(slice).scrollIntoView());
 		}
 	}
-	find(query: string, back: boolean) {
-		if (!query) return false;
-		const { doc, selection } = this.view.state;
-		const positions: number[] = [];
-		doc.descendants((node, pos) => {
-			if (!node.isText) return;
-			const text = node.text!.toLowerCase();
-			const needle = query.toLowerCase();
-			for (let i = text.indexOf(needle); i >= 0; i = text.indexOf(needle, i + needle.length)) positions.push(pos + i);
-		});
-		const pos = back ? positions.findLast(p => p < selection.from) ?? positions.at(-1) : positions.find(p => p >= selection.to) ?? positions[0];
-		if (pos == null) return false;
-		this.select(pos, pos + query.length);
-		return true;
+	/** 찾을 말을 바꾸고 선택 위치 이후의 첫 결과를 선택한다. 모든 결과는 강조해 둔다. */
+	search(query: FindQuery): FindStatus {
+		this.findQuery = { ...query };
+		this.view.dispatch(refreshFind(this.view.state, this.findQuery));
+		return findStatus(this.view.state);
+	}
+	findNext(back = false): FindStatus {
+		const tr = stepFind(this.view.state, back);
+		if (tr) this.view.dispatch(tr);
+		return findStatus(this.view.state);
+	}
+	/** 강조를 지운다. 마지막으로 가리킨 결과는 선택된 채로 둔다. */
+	endSearch() {
+		if (this.findQuery.text) this.search({ ...this.findQuery, text: '' });
+	}
+	private reportFound() {
+		if (this.findQuery.text) this.host?.found?.(findStatus(this.view.state));
 	}
 	action(id: string, rows = 2, cols = 3) {
 		const { state, dispatch } = this.view;

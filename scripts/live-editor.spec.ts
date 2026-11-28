@@ -305,3 +305,57 @@ test('copying text chosen inside inline code copies only that text, without back
 	e.select(start, start + path.length + 2);
 	assert.equal(e.selectedMarkdown(), `\`${path}\` 뒤`.slice(0, path.length + 4));
 });
+
+function marked(e: LiveEditor) {
+	return Array.from(e.view.dom.querySelectorAll('.live-find-match'), m => [m.textContent, m.classList.contains('active')]);
+}
+
+// 예전 검색은 글자 노드 하나씩 찾아 `**굵게**` 경계를 넘는 구절을 놓쳤고, 찾은 곳을 선택만 해서
+// 포커스가 검색창에 있는 동안에는 화면에 아무 표시도 없었다.
+test('find matches across inline formatting and highlights every match with the current one marked', async () => {
+	const e = await edit('find-marks', '첫 **굵은** 글씨\n\n굵은 글씨와 *굵은* 글씨');
+	const status = e.search({ text: '굵은 글씨', caseSensitive: false, wholeWord: false });
+	assert.deepEqual(status, { count: 3, active: 0, truncated: false });
+	assert.equal(e.view.state.doc.textBetween(e.view.state.selection.from, e.view.state.selection.to), '굵은 글씨');
+	assert.deepEqual(marked(e).filter(([, active]) => active).map(([text]) => text).join(''), '굵은 글씨');
+	assert.equal(marked(e).map(([text]) => text).join(''), '굵은 글씨'.repeat(3));
+	e.endSearch();
+	assert.deepEqual(marked(e), []);
+});
+
+test('find steps forward and back through matches and wraps at either end', async () => {
+	const e = await edit('find-step', 'one two one\n\nthree one');
+	const query = { text: 'one', caseSensitive: false, wholeWord: false };
+	const at = () => e.view.state.selection.from;
+	assert.equal(e.search(query).active, 0);
+	const first = at();
+	assert.deepEqual([e.findNext().active, e.findNext().active, e.findNext().active], [1, 2, 0]);
+	assert.equal(at(), first);
+	assert.equal(e.findNext(true).active, 2);
+	assert.equal(e.findNext(true).active, 1);
+	// 사용자가 옮긴 커서에서 다시 출발한다.
+	e.select(1);
+	assert.equal(e.findNext().active, 0);
+});
+
+test('find honors case and whole-word options and reports no match', async () => {
+	const e = await edit('find-options', 'Word words WORD');
+	assert.equal(e.search({ text: 'word', caseSensitive: false, wholeWord: false }).count, 3);
+	assert.equal(e.search({ text: 'word', caseSensitive: true, wholeWord: false }).count, 1);
+	assert.equal(e.search({ text: 'word', caseSensitive: false, wholeWord: true }).count, 2);
+	assert.deepEqual(e.search({ text: 'nothing', caseSensitive: false, wholeWord: false }), { count: 0, active: -1, truncated: false });
+	assert.equal(e.findNext().active, -1);
+});
+
+test('find keeps its matches current while the document is edited', async () => {
+	const e = await edit('find-edit', 'cat and cat');
+	const seen: number[] = [];
+	e.host = { ...e.host!, found: status => seen.push(status.count) };
+	e.search({ text: 'cat', caseSensitive: false, wholeWord: false });
+	e.view.dispatch(e.view.state.tr.insertText(' cat', e.view.state.doc.content.size - 1));
+	assert.deepEqual(seen, [3]);
+	assert.equal(marked(e).length, 3);
+	e.load('no pets here', false, '');
+	assert.deepEqual(seen, [3, 0]);
+	assert.deepEqual(marked(e), []);
+});

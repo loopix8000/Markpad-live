@@ -4,6 +4,7 @@
 	import { editorReadingPosition } from '../utils/editorPosition.js';
 	import { clipboardMarkdown, embedFile, writeSelection } from '../live/clipboard.js';
 	import type { LiveEditor } from '../live/editor.js';
+	import { MAX_FIND_MATCHES, type FindStatus } from '../live/find.js';
 	import { settings, wheelZoomFactor } from '../stores/settings.svelte.js';
 	import { tabManager } from '../stores/tabs.svelte.js';
 	import { fontFamilyValue } from '../utils/fontFamily.js';
@@ -36,8 +37,13 @@
 		t(tool.labelKey, settings.language).toLocaleLowerCase().includes(filter.trim().toLocaleLowerCase())));
 	let findOpen = $state(false);
 	let query = $state('');
-	let missed = $state(false);
+	let caseSensitive = $state(false);
+	let wholeWord = $state(false);
+	let found = $state<FindStatus>({ count: 0, active: -1, truncated: false });
 	let searchInput = $state<HTMLInputElement>();
+	const findLabel = $derived(!query ? '' : found.count === 0 ? t('find.noMatches', settings.language)
+		: t('find.matchCount', settings.language).replace('{{current}}', String(found.active + 1))
+			.replace('{{total}}', found.truncated ? `${MAX_FIND_MATCHES}+` : String(found.count)));
 	let drag = $state<{ x: number; y: number; height: number } | null>(null);
 	let lastEditable: boolean | undefined;
 	let pending: (() => void) | undefined;
@@ -74,6 +80,7 @@
 					}
 				},
 				command: runEditorAction,
+				found: status => { found = status; },
 			};
 			const restored = !!instance.source && instance.source.text === value;
 			sync(instance);
@@ -98,6 +105,8 @@
 			if (live) {
 				if (live.view.hasFocus()) flushPositionTo(id);
 				live.scroll = pane.scrollTop;
+				// 편집기는 탭에 남아 다시 쓰이므로 검색창과 함께 강조도 지운다.
+				live.endSearch();
 				live.host = undefined;
 				live.root.remove();
 			}
@@ -210,8 +219,35 @@
 	export function undo() { runEditorAction('undo'); }
 	export function redo() { runEditorAction('redo'); }
 	export function selectAll() { runEditorAction('selectAll'); }
-	export async function triggerFind() { findOpen = true; await tick(); searchInput?.focus(); searchInput?.select(); }
-	function find(back = false) { missed = !live?.find(query,back); }
+	export async function triggerFind() {
+		// 한 줄 안에서 고른 글자가 있으면 그 글자를 찾는다. 브라우저와 VS Code의 Ctrl+F와 같다.
+		const selection = live?.view.state.selection;
+		if (live && selection && !selection.empty && selection.$from.sameParent(selection.$to)) {
+			const text = live.view.state.doc.textBetween(selection.from, selection.to);
+			if (text.trim() && !/[\r\n]/.test(text) && text.length <= 200) query = text;
+		}
+		findOpen = true;
+		search();
+		await tick();
+		searchInput?.focus();
+		searchInput?.select();
+	}
+	function search() {
+		if (live) found = live.search({ text: query, caseSensitive, wholeWord });
+	}
+	function step(back = false) {
+		if (live) found = live.findNext(back);
+	}
+	function closeFind() {
+		findOpen = false;
+		live?.endSearch();
+		live?.view.focus();
+	}
+	function findKeydown(e: KeyboardEvent) {
+		if (e.isComposing) return;
+		if (e.key === 'Escape') { e.preventDefault(); closeFind(); }
+		else if (e.key === 'Enter' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g')) { e.preventDefault(); step(e.shiftKey); }
+	}
 	export function runEditorAction(id: string, payload?: {rows?:number; cols?:number}) {
 		if (!live) return;
 		if (id === 'switch-editor') { onswitchmode?.(); return; }
@@ -261,14 +297,21 @@
 </script>
 
 {#if findOpen}
-	<form class="live-find" onsubmit={e => { e.preventDefault(); find(); }}>
-		<input bind:this={searchInput} bind:value={query} aria-label={t('find.placeholder',settings.language)} placeholder={t('find.placeholder',settings.language)}
-			oninput={() => missed = false} onkeydown={e => { if (e.key === 'Escape') { findOpen = false; live?.view.focus(); } }} />
-		{#if missed}<span role="status">{t('find.noMatches',settings.language)}</span>{/if}
-		<button type="button" aria-label={t('find.previous',settings.language)} onclick={() => find(true)}>↑</button>
-		<button type="submit" aria-label={t('find.next',settings.language)}>↓</button>
-		<button type="button" aria-label={t('find.close',settings.language)} onclick={() => { findOpen = false; live?.view.focus(); }}>×</button>
-	</form>
+	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+	<div class="live-find" role="search" onkeydown={findKeydown}>
+		<input bind:this={searchInput} bind:value={query} oninput={search} spellcheck="false" autocomplete="off"
+			aria-label={t('find.placeholder',settings.language)} placeholder={t('find.placeholder',settings.language)} />
+		<span class="live-find-count" class:missed={!!query && found.count === 0} role="status">{findLabel}</span>
+		<button type="button" class="live-find-toggle" class:active={caseSensitive} aria-pressed={caseSensitive}
+			title={t('find.caseSensitive',settings.language)} aria-label={t('find.caseSensitive',settings.language)}
+			onclick={() => { caseSensitive = !caseSensitive; search(); }}>Aa</button>
+		<button type="button" class="live-find-toggle" class:active={wholeWord} aria-pressed={wholeWord}
+			title={t('find.wholeWord',settings.language)} aria-label={t('find.wholeWord',settings.language)}
+			onclick={() => { wholeWord = !wholeWord; search(); }}>ab|</button>
+		<button type="button" disabled={found.count === 0} title={t('find.previous',settings.language)} aria-label={t('find.previous',settings.language)} onclick={() => step(true)}>↑</button>
+		<button type="button" disabled={found.count === 0} title={t('find.next',settings.language)} aria-label={t('find.next',settings.language)} onclick={() => step()}>↓</button>
+		<button type="button" title={t('find.close',settings.language)} aria-label={t('find.close',settings.language)} onclick={closeFind}>×</button>
+	</div>
 {/if}
 <div class="live-scroll" bind:this={pane} onscroll={() => { const p = scrollSyncPosition(); if (p && !following) onscrollsync(p); }}>
 	<div class="live-body" class:markdown-body={!sourceMode} class:source-body={sourceMode} class:focused={settings.focusMode} class:nowrap={settings.wordWrap === 'off'} bind:this={host}
@@ -325,7 +368,48 @@
 	.source-body.nowrap :global(pre.source-block) { white-space: pre; }
 	.live-body :global(.selectedCell) { background: var(--color-accent-subtle); }
 	.live-status, .live-find { display: flex; flex: none; align-items: center; gap: 1em; padding: 4px 12px; color: var(--color-fg-muted); background: var(--color-canvas-subtle); font-size: 12px; }
-	.live-find input { min-width: 6em; color: inherit; background: var(--color-canvas-default); }
+	/*
+	 * 접힌 목차 버튼은 편집 창 위 모서리에 떠 있어서 검색창과 겹친다. 본문이 그 버튼을 피하는 여백
+	 * (--editor-inset-left/right, 버튼이 편집 창 위에 있을 때만 정해진다)을 검색창에도 똑같이 준다.
+	 */
+	/* 미리보기 검색창처럼 오른쪽에 붙인다. */
+	.live-find {
+		justify-content: flex-end;
+		gap: 4px;
+		padding-inline: max(12px, var(--editor-inset-left, 0px)) max(12px, var(--editor-inset-right, 0px));
+		border-bottom: 1px solid var(--color-border-muted);
+	}
+	.live-find input {
+		flex: 1 1 12em;
+		min-width: 6em;
+		max-width: 24em;
+		padding: 3px 6px;
+		color: var(--color-fg-default);
+		background: var(--color-canvas-default);
+		border: 1px solid var(--color-border-muted);
+		border-radius: 4px;
+		font: inherit;
+		outline: none;
+	}
+	.live-find input:focus { border-color: var(--color-accent-fg); }
+	.live-find-count { min-width: 5em; margin-inline: 4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+	.live-find-count.missed { color: var(--color-danger-fg, #d73a49); }
+	.live-find button {
+		min-width: 24px;
+		height: 24px;
+		padding: 0 4px;
+		color: inherit;
+		background: transparent;
+		border: 1px solid transparent;
+		border-radius: 4px;
+		font: inherit;
+		cursor: pointer;
+	}
+	.live-find button:hover:not(:disabled) { background: var(--color-neutral-muted, rgba(128, 128, 128, 0.15)); }
+	.live-find button:disabled { opacity: 0.4; cursor: default; }
+	.live-find .live-find-toggle.active { color: var(--color-accent-fg); background: var(--color-accent-subtle, rgba(67, 138, 243, 0.25)); border-color: var(--color-accent-fg); }
+	.live-body :global(.live-find-match) { background-color: var(--highlight-color, rgba(255, 208, 0, 0.4)); border-radius: 2px; }
+	.live-body :global(.live-find-match.active) { background-color: #ff8c00; color: #000; }
 	.palette-list { display: grid; max-height: 40vh; overflow: auto; }
 	.palette-list button { text-align: start; padding: .4em .7em; color: inherit; background: transparent; border: 0; }
 	.palette-list button:is(:hover,:focus-visible) { background: var(--color-canvas-subtle); }
