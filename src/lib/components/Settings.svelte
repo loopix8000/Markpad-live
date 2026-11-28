@@ -1898,19 +1898,11 @@
 	.toolbar-tool-check:checked {
 		background-color: var(--color-accent-fg);
 		border-color: var(--color-accent-fg);
-	}
-
-	.toolbar-tool-check:checked::after {
-		content: '';
-		position: absolute;
-		top: 0.5px;
-		left: 3px;
-		width: 4px;
-		height: 7px;
-		border: 2px solid white;
-		border-top: none;
-		border-left: none;
-		transform: rotate(45deg);
+		/* 미리보기 체크박스와 같은 SVG 체크 표시. 가운데 맞춤의 이유는 styles.css에 적어 두었다. */
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.3 5.8 4.9 8.4 9.7 3.6' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+		background-position: center;
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
 	}
 
 	.toolbar-tool-check:disabled {

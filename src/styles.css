@@ -250,8 +250,8 @@ body {
 
 /* Floating Scrollbar */
 ::-webkit-scrollbar {
-	width: 14px;
-	height: 14px;
+	width: 10px;
+	height: 10px;
 }
 
 ::-webkit-scrollbar-corner {
@@ -262,26 +262,32 @@ body {
 	background: transparent;
 }
 
-/* A 12px thumb that keeps its width and only darkens under the pointer, as
-   Monaco's does, with Fluent's 4px control corner (5px less the 1px
-   transparent border). 22px is Monaco's 20px minimum slider length plus that
-   border at each end. Keep in step with the Monaco scrollbar in Editor.svelte. */
+/*
+ * 얇은 스크롤바. 10px 홈 안에 투명 테두리 2px를 두어 막대는 6px로 그리고,
+ * 포인터를 올리거나 끄는 동안에는 테두리를 1px로 줄여 8px로 살짝 넓히고 진하게 한다.
+ * 모서리는 막대 폭의 절반이라 양 끝이 둥글다. 최소 길이 24px는 테두리를 포함한 값이다.
+ */
 ::-webkit-scrollbar-thumb {
 	background-color: rgba(120, 120, 120, 0.35);
 	border-radius: 5px;
-	border: 1px solid transparent;
+	border: 2px solid transparent;
 	background-clip: content-box;
-	min-width: 22px;
-	min-height: 22px;
+	min-width: 24px;
+	min-height: 24px;
 }
 
 ::-webkit-scrollbar-thumb:hover,
 ::-webkit-scrollbar-thumb:active {
 	background-color: rgba(120, 120, 120, 0.55);
+	border-width: 1px;
 }
 
 .markdown-body {
-	--task-checkbox-size: 15px;
+	/*
+	 * 내용 확대는 글꼴 크기를 바꾸는 방식이라 px로 두면 체크박스만 그대로 남는다.
+	 * em은 쓰이는 곳(체크박스와 그 목록 항목)의 글꼴 크기로 풀리므로 글자와 함께 커진다.
+	 */
+	--task-checkbox-size: 1em;
 	-ms-text-size-adjust: 100%;
 	-webkit-text-size-adjust: 100%;
 	margin: 0;
@@ -1867,8 +1873,9 @@ body {
 	min-width: var(--task-checkbox-size);
 	/* 항목이 여러 줄이어도 첫 줄의 중앙에 맞춘다. */
 	margin-block-start: calc((1lh - var(--task-checkbox-size)) / 2);
-	border: 1.5px solid var(--color-border-default);
-	border-radius: 3px;
+	/* 확대는 글꼴 크기로 하므로 테두리와 모서리도 글자 크기를 따라 커지게 em으로 둔다. */
+	border: 0.1em solid var(--color-border-default);
+	border-radius: 0.2em;
 	background: transparent;
 	cursor: pointer;
 	position: relative;
@@ -1884,26 +1891,16 @@ body {
 .live-body .live-task > input[type="checkbox"]:checked {
 	background-color: var(--color-accent-fg);
 	border-color: var(--color-accent-fg);
-}
-
-.markdown-body input[data-task-checkbox]:checked::after,
-.live-body .live-task > input[type="checkbox"]:checked::after {
-	content: '';
-	display: block;
-	position: absolute;
 	/*
-	 * 체크 표시는 오른쪽·아래 테두리만 그린 상자를 45도 돌린 것이라, 긴 획이 오른쪽 아래로
-	 * 기울어 잉크가 상자 중심보다 오른쪽 아래에 놓인다. 그만큼 왼쪽 위로 당겨 잉크의
-	 * 중심을 맞춘다. 가로를 -50%로 두면 0.5px 오른쪽에 놓였고, 이 값은 1~2배 화면에서 0.15px 안이다.
+	 * 체크 표시는 SVG로 그려 상자 안쪽을 그대로 채운다. 획의 잉크 범위(둥근 끝 포함)가
+	 * viewBox 12×12의 가운데 (6, 6)에 오도록 좌표를 잡아 두었으므로, 화면 배율이나
+	 * 상자의 소수 px 위치와 상관없이 가운데에 놓인다. 테두리를 45도 돌려 그리던 방식은
+	 * 테두리 두께가 장치 픽셀에 맞춰 반올림되면서 배율마다 0.3~1px씩 어긋났다.
 	 */
-	top: 50%;
-	left: 50%;
-	width: 4px;
-	height: 7px;
-	border: 2px solid white;
-	border-top: none;
-	border-left: none;
-	transform: translate(-58%, -72%) rotate(45deg);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.3 5.8 4.9 8.4 9.7 3.6' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-position: center;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
 }
 
 /*
